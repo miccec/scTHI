@@ -5,11 +5,16 @@ scTHI <- function(expMat, cellCusterA, cellCusterB, cellCusterAName, cellCusterB
   
   #' scTHI
   #'
-  #' This function allows you to express your love of cats.
+  #' This function computes a set of ligand-receptor interactions from a single cell gene expression matrix.
+  #' you must specify at least two clusters of cells (for example tumor cells and immune cells)
   #' @param expMat expression matrix.
+  #' @param clusterA vector of columns of expMat that belong to the first cluster
+  #' @param clusterB vector of columns of expMat that belong to the second cluster
+  #' @param cellCusterBName 
   #' @keywords interaction
   #' @export
   #' @examples
+  #' 
   #' scTHI
   
   ####################### check rownames expMat

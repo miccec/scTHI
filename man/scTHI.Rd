@@ -12,11 +12,19 @@ scTHI(expMat, cellCusterA, cellCusterB, cellCusterAName, cellCusterBName,
 }
 \arguments{
 \item{expMat}{expression matrix.}
+
+\item{cellCusterBName}{}
+
+\item{clusterA}{vector of columns of expMat that belong to the first cluster}
+
+\item{clusterB}{vector of columns of expMat that belong to the second cluster}
 }
 \description{
-This function allows you to express your love of cats.
+This function computes a set of ligand-receptor interactions from a single cell gene expression matrix.
+you must specify at least two clusters of cells (for example tumor cells and immune cells)
 }
 \examples{
+
 scTHI
 }
 \keyword{interaction}
