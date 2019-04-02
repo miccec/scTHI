@@ -165,7 +165,7 @@ scTHI <- function(expMat, cellCusterA, cellCusterB, cellCusterAName, cellCusterB
     }
     if(nrow(result) == 0) stop("No result!")
 
-    load("~/result/data_interaction/interaction_tableComplete.RData")
+    #load("~/result/data_interaction/interaction_tableComplete.RData")
     interaction_table <- interaction_table[rownames(result), ]
     columnToadd <- c("partnerA1", "partnerA2", "partnerA3", "partnerB1", "partnerB2", "partnerB3")
     result <- data.frame(interaction_table[, columnToadd], result, stringsAsFactors = F)
