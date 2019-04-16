@@ -283,7 +283,7 @@ PValue = TRUE, nPermu = 1000, ncore = 8){
     expValueB <- rep(0, nrow(interaction_table))
     names(rnkB) <- names(expValueB) <- rownames(interaction_table)
     for(i in 1:nrow(interaction_table)){
-      print(i)
+      #print(i)
       ggenes <- interaction_table[i, c("partnerB1", "partnerB2", "partnerB3")]
       ggenes <- as.vector(ggenes[!is.na(ggenes)])
       tmp_genes <- ddataB_[ggenes, , drop = F]
