@@ -207,7 +207,9 @@
 #'   return(result)
 #' }
 #'
-#' scTHI <- function(expMat, cellCusterA, cellCusterB, cellCusterAName, cellCusterBName, topRank = 10, fileNameBase = "CustomCellPhone", filterCutoff,
+#'
+
+scTHI <- function(expMat, cellCusterA, cellCusterB, cellCusterAName, cellCusterBName, topRank = 10, fileNameBase = "CustomCellPhone", filterCutoff,
 foldChange = TRUE, useData = FALSE, dataToUse, cellsToCompare, cellsToCompareNAME, expMatToCompare,
 PValue = TRUE, nPermu = 1000, ncore = 8){
 
