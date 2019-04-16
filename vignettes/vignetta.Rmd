@@ -27,11 +27,11 @@ library(scTHI)
 As input, the scTHI package expects a matrix of count data (or normalized counts) obtained from single cell RNA-seq experiment, where rows are genes presented with Hugo Symbols and columns are cells. For a practical demonstration, let’s use the scRNA-seq data available on the Broad Institute Single-Cell Portal (https://portals.broadinstitute.org/single_cell/study/single-cell-analysis-in-pediatric-midline-gliomas-withhistone-h3k27m-mutation) [2]. The dataset provides 3,321 scRNA-seq profiles from six primary Glioma (H3K27M-glioma), and includes both malignant cells and several tumor microenvironment cell types, as immune cells and oligodendrocytes. Our goal is to identify the significant ligand-receptor interactions that are established between cancer and immune cells present in the tumor microenvironment. For this reason, after downloading H3K27M-glioma data we preprocessed them, selecting only one sample of interest (i.e. BCH836), removing zero genes, trasforming data in TMP e log2, and appling quantile normalization. Processed data can be loaded as follows:
 
 ```{r,message=FALSE,warning=FALSE, eval=FALSE, echo=TRUE}
-system.file("extdata", "H3K27_PatientBCH836.RData", package = "scTHI", mustWork = TRUE)
+load(system.file( "H3K27_PatientBCH836.RData", package = "scTHI", mustWork = TRUE))
 ```
 
 ```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=FALSE}
-load("H3K27_PatientBCH836.RData")
+#load("H3K27_PatientBCH836.RData")
 ```
 
 H3K27.meta includes the annotation of each cell, so as to identify the tumor cells and the immune cells in BCH836 patient:
@@ -49,16 +49,16 @@ Immune <- rownames(H3K27.meta)[H3K27.meta$Type == "Immune cell"]
 Let's run `scTHI` in order to detect significant ligand-receptor interactions between cancer and immune cell. P-value is estimated by permuting the mates of interaction pairs. 
 Important to consider is that interactions are not symmetric, so partnerA expression is considered on the first cluster (in the example the Malignant cells), and partnerB expression is considered on the second cluster (i.e. Immune cells). 
 
-```{r,message=FALSE,warning=FALSE, eval=FALSE, echo=TRUE}
+```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=TRUE}
 result <- scTHI(expMat = H3K27, cellCusterA = Malignant, cellCusterAName = "Malignant", cellCusterB = Immune, 
                 cellCusterBName = "Immune", topRank = 15, fileNameBase = "PatientBCH836", filterCutoff = 0.50, 
-                foldChange = FALSE, useData = FALSE, PValue = TRUE, nPermu = 1000, ncore = 48)
+                foldChange = FALSE, useData = FALSE, PValue = TRUE, nPermu = 100, ncore = 48)
 ```
 
 As result are shown only significant interaction pairs, for which partner A and partner B are expressed in at least 50% of the cells of the respective clusters, as set in *filterCutoff* argument. The scTHI score indicates the percentage of cells that express the interaction pair at the top of the ordered gene list. In this regard, we consider a gene expressed in a cell, if it is in the top 15% of the ranked gene list, as set in *topRank* argument. Result also includes two columns with the average expression values of each partner in the respective clusters.
 
 ```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=FALSE}
-load("PatientBCH836_MalignantVSImmune.RData")
+#load("PatientBCH836_MalignantVSImmune.RData")
 ```
 
 ```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=TRUE}
@@ -67,7 +67,7 @@ head(result)
 
 The `scTHI` function also allows the user to calculate a fold change of expression of each partner with respect to a third cluster of cells of interest. Suppose we want to check whether the two partners of each interaction are more or less expressed than the oligodendrocyte cells. We can run again `scTHI` with the results previously obtained and changing the *foldChange* and *useData* arguments.
 
-```{r,message=FALSE,warning=FALSE, eval=FALSE, echo=TRUE}
+```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=TRUE}
 result <- scTHI(expMat = H3K27, cellCusterA = Malignant, cellCusterAName = "Malignant", cellCusterB = Immune, 
                 cellCusterBName = "Immune", topRank = 15, fileNameBase = "PatientBCH836_plusFC", 
                 filterCutoff = 0.50, foldChange = TRUE, useData = TRUE, dataToUse = result, 
@@ -76,7 +76,7 @@ result <- scTHI(expMat = H3K27, cellCusterA = Malignant, cellCusterAName = "Mali
 ```
 
 ```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=FALSE}
-load("PatientBCH836_plusFC_MalignantVSImmune.RData")
+#load("PatientBCH836_plusFC_MalignantVSImmune.RData")
 ```
 
 ```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=TRUE}
