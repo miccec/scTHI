@@ -13,4 +13,5 @@ Imports: doMC,
         foreach,
         parallel,
         iterators
+VignetteBuilder: knitr
     
