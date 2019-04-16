@@ -2,6 +2,8 @@
 title: "Single Cell Tumor Host Interaction (scTHI)"
 author: "Author"
 date: "April, 2019"
+%\VignetteIndexEntry{Using scTHI}
+%\VignetteEngine{knitr::knitr}
 output: html_document
 ---
 
