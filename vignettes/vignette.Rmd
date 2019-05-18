@@ -1,23 +1,28 @@
 ---
-title: "scTHI vignette"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Put the title of your vignette here}
-  %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+title: "Single Cell Tumor Host Interaction (scTHI)"
+author: "Author"
+date: "April, 2019"
+output: html_document
 ---
+
+<style>
+body {
+text-align: justify}
+</style>
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 ***
 
 ### Introduction
-The detection of tumor-host interaction is a major challange in cancer understanding. Recent advantages in single cell next generation sequencing have provided new insights in unveiling  tumor-microenvironment cells comunications. 
-The scTHI package provides an rank-based approach to test the expression in single cell data of a set of interacting ligands and receptors avaiable in literature [1]. 
+The detection of tumor-host interaction is a major challange in cancer understanding. More recent advances in single cell next generation sequencing have provided new insights in unveiling tumor microenvironment (TME) cells comunications.
+The scTHI package provides some useful functions to identify and visualize the cell types making up the TME, and a rank-based approach to discover interesting ligand-receptor interactions establishing among malignant and non tumor cells.
+ 
 
 ### Quick start
-
 ```{r,message=FALSE,warning=FALSE, eval=FALSE, echo=TRUE}
 library(devtools)
 install_github("miccec/scTHI")
@@ -25,13 +30,20 @@ library(scTHI)
 ```
 
 ### Input Data
-As input, the scTHI package expects a matrix of count data (or normalized counts) obtained from single cell RNA-seq experiment, where rows are genes presented with Hugo Symbols and columns are cells. For a practical demonstration, let’s use the scRNA-seq data available on the Broad Institute Single-Cell Portal (https://portals.broadinstitute.org/single_cell/study/single-cell-analysis-in-pediatric-midline-gliomas-withhistone-h3k27m-mutation) [2]. The dataset provides 3,321 scRNA-seq profiles from six primary Glioma (H3K27M-glioma), and includes both malignant cells and several tumor microenvironment cell types, as immune cells and oligodendrocytes. Our goal is to identify the significant ligand-receptor interactions that are established between cancer and immune cells present in the tumor microenvironment. For this reason, after downloading H3K27M-glioma data we preprocessed them, selecting only one sample of interest (i.e. BCH836), removing zero genes, trasforming data in TMP e log2, and appling quantile normalization. Processed data can be loaded as follows:
+As input, the scTHI package expects a matrix of count data (or normalized counts) obtained from single cell RNA-seq experiment, where rows are genes presented with Hugo Symbols and columns are cells. For a practical demonstration, let???s use the scRNA-seq data available on the Broad Institute Single-Cell Portal (https://portals.broadinstitute.org/single_cell/study/single-cell-analysis-in-pediatric-midline-gliomas-withhistone-h3k27m-mutation) [1]. The dataset provides 3,321 scRNA-seq profiles from six primary Glioma (H3K27M-glioma), and includes both malignant cells and several tumor microenvironment cell types, as immune cells and oligodendrocytes. Our goal is to identify the significant ligand-receptor interactions that are established between cancer and immune cells present in the tumor microenvironment. For this reason, after downloading H3K27M-glioma data we preprocessed them, selecting only one sample of interest (i.e. BCH836), removing zero genes, trasforming data in TMP e log2, and appling quantile normalization. Processed data can be loaded as follows:
 
-```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=TRUE}
+```{r,message=FALSE,warning=FALSE, eval=FALSE, echo=TRUE}
 library(scTHI)
-load(system.file("H3K27_PatientBCH836.RData", package = "scTHI", mustWork = TRUE))
 ```
 
+```{r,message=FALSE,warning=FALSE, eval=FALSE, echo=TRUE}
+load(system.file("extdata", "H3K27_PatientBCH836.RData", package = "scTHI", mustWork = TRUE))
+```
+
+```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=FALSE}
+load("/storage/gluster/vol1/SHARED/HOMEFOLDERS/caruso/scProject/NYnontumor/Phone/PhoneCustom/package_data/data/H3K27_PatientBCH836.RData")
+source("/storage/gluster/vol1/SHARED/HOMEFOLDERS/caruso/scProject/NYnontumor/Phone/PhoneCustom/package_data/scTHI_function.R")
+```
 
 H3K27.meta includes the annotation of each cell, so as to identify the tumor cells and the immune cells in BCH836 patient:
 
@@ -42,51 +54,90 @@ table(H3K27.meta$Type)
 ```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=TRUE}
 Malignant <- rownames(H3K27.meta)[H3K27.meta$Type == "Malignant"]
 Immune <- rownames(H3K27.meta)[H3K27.meta$Type == "Immune cell"]
-Oligodendrocyte <-  rownames(H3K27.meta)[H3K27.meta$Type == "oligodendrocyte"]
-
 ```
 
-### Run scTHI
-Let's run `scTHI` in order to detect significant ligand-receptor interactions between cancer and immune cell. P-value is estimated by permuting the mates of interaction pairs. 
+### Run scTHI.score
+Let's run `scTHI.score` in order to detect significant ligand-receptor interactions occurring between cancer and immune cells. The function implements an R version of CellPhoneDB tool [2], and includes a set of filters to make more stringent and efficient the analysis. In particular, a score is computed for each interaction pair. This score does not simply reflect the average expression of the two partners in the interaction pair, but indicates the percentage of cells that express the interaction pair at the top of the ordered gene list. Furthermore, it consider a gene expressed in a cell, only if it is in the top 10% of the ranked gene list, as set in `topRank` argument. 
 Important to consider is that interactions are not symmetric, so partnerA expression is considered on the first cluster (in the example the Malignant cells), and partnerB expression is considered on the second cluster (i.e. Immune cells). 
 
-```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=TRUE}
-result <- scTHI(expMat = H3K27, cellCusterA = Malignant, cellCusterAName = "Malignant", cellCusterB = Immune, 
-                cellCusterBName = "Immune", topRank = 15, fileNameBase = "PatientBCH836", filterCutoff = 0.50, 
-                foldChange = FALSE, useData = FALSE, PValue = TRUE, nPermu = 100, ncore = 48)
+```{r, message=FALSE, warning=TRUE, eval=TRUE, echo=TRUE}
+BCH836.result <- scTHI.score(expMat = H3K27, cellCusterA = Malignant, cellCusterB = Immune, 
+                             cellCusterAName = "Malignant", cellCusterBName = "Immune", 
+                             topRank = 10, PValue = TRUE, pvalueCutoff = 0.05, nPermu = 100, 
+                             ncore = 48)
 ```
 
-As result are shown only significant interaction pairs, for which partner A and partner B are expressed in at least 50% of the cells of the respective clusters, as set in *filterCutoff* argument. The scTHI score indicates the percentage of cells that express the interaction pair at the top of the ordered gene list. In this regard, we consider a gene expressed in a cell, if it is in the top 15% of the ranked gene list, as set in *topRank* argument. Result also includes two columns with the average expression values of each partner in the respective clusters.
+As result are shown only significant interaction pairs, for which partner A and partner B are expressed in at least 50% of the cells of the respective clusters, as set in `filterCutoff` argument. P-value computation is optional and is estimated by permuting the mates of interaction pairs. Result also includes two columns with the average expression values of each partner in the respective clusters.
 
-```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=FALSE}
-#load("PatientBCH836_MalignantVSImmune.RData")
+```{r, message=FALSE, warning=FALSE, eval=TRUE, echo=TRUE}
+head(BCH836.result$result)
 ```
 
-```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=TRUE}
-head(result)
+An easier way to view results is to use the function `scTHI.plotResult`. Setting the argument `plotType` as "score" it is possible to display the score of each pair through barplots. The number of asterisks indicates significance. Otherwise, setting the argument `plotType` as "pair", for each pair are shown bar plots displaying the percentage of cells in each cluster expressing partner A and partner B, respectively.
+
+```{r, fig.align = "center", message=FALSE, warning=FALSE, eval=TRUE, echo=TRUE}
+scTHI.plotResult(scTHIresult = BCH836.result, cexNames = 0.7, plotType = "score")
 ```
 
-The `scTHI` function also allows the user to calculate a fold change of expression of each partner with respect to a third cluster of cells of interest. Suppose we want to check whether the two partners of each interaction are more or less expressed than the oligodendrocyte cells. We can run again `scTHI` with the results previously obtained and changing the *foldChange* and *useData* arguments.
-
-```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=TRUE}
-result <- scTHI(expMat = H3K27, cellCusterA = Malignant, cellCusterAName = "Malignant", cellCusterB = Immune, 
-                cellCusterBName = "Immune", topRank = 15, fileNameBase = "PatientBCH836_plusFC", 
-                filterCutoff = 0.50, foldChange = TRUE, useData = TRUE, dataToUse = result, 
-                cellsToCompare = Oligodendrocyte, cellsToCompareNAME = "Oligodendrocyte", 
-                expMatToCompare = H3K27, PValue = FALSE)
+```{r, fig.align = "center", message=FALSE, warning=FALSE, eval=TRUE, echo=TRUE}
+scTHI.plotResult(scTHIresult = BCH836.result, cexNames = 0.7, plotType = "pair", legendPos = "topright")
 ```
 
-```{r,message=FALSE,warning=FALSE, eval=FALSE, echo=FALSE}
-#load("PatientBCH836_plusFC_MalignantVSImmune.RData")
+Another useful way to explore results is the visualization of the entire data set through the t-SNE plot. *scTHI* allows the user to compute the non linear dimensionality reduction of data using the `scTHI.runTsne` function based on the Rtsne R package [3]. 
+
+```{r, message=FALSE, warning=FALSE, eval=TRUE, echo=TRUE}
+BCH836.result <- scTHI.runTsne(scTHIresult = BCH836.result)
 ```
 
-```{r,message=FALSE,warning=FALSE, eval=TRUE, echo=TRUE}
-head(result)
+Users can decide to display on the tsne the two input clusters, i.e. Maglignant and Immune cells, or to observe the intensity of the expression of an intresting interaction pair in the whole dataset. The `scTHI.plotCluster` function differently labels cells on t-SNE if they belong to ClusterA or ClusterB. 
+
+```{r, fig.align = "center", message=FALSE, warning=FALSE, eval=TRUE, echo=TRUE}
+scTHI.plotCluster(scTHIresult = BCH836.result, cexPoint = 0.8, legendPos = "bottomleft")
 ```
 
+On the other hand the `scTHI.plotPairs` function colors the cells on the t-SNE based on the expression levels of a user-defined interaction pair.
+For example, let's try plotting the expression of the interaction pair consisting of THY1, which should be expressed by the cancer cells and the ITGAX-ITGB2 complex, instead expressed by the immune cells.
+
+```{r, fig1, fig.height = 3, fig.width = 10, fig.align = "center",  message=FALSE, warning=FALSE, eval=TRUE, echo=TRUE}
+scTHI.plotPairs(scTHIresult = BCH836.result, cexPoint = 0.8, interactionToplot = "THY1_ITGAX:ITGB2")
+```
+
+The THY1 gene appears uniformly expressed in tumor cells, and  in according to results table,  it was expressed in 76% of malignant cells at the top 10% of the ranked gene list of each cell. On the other hand the ITGAX-ITGB2 complex is highly specific of the Immune cluster, where it is expressed by 92% of the cells at the top 10% of the ranked gene list of each cell.
+
+
+### Tumor microenvironment classification
+Another important problem in study tumor-host interaction, is the exact classification of all cell types that make up the tumor microenvironment. Generally, tools for single cell data analysis are based on the use of marker genes to classify different cell types identified by clustering approaches. This strategy is not always the most accurate, so we propose a different approach to the classification of TME based on gene signature enrichment analysis. The `TME.classification` implements the Mann-Whitney-Wilcoxon Gene Set Test (MWW-GST) algorithm [4] and tests for each cell the enrichment of a collection of signatures of different cell types, with greater interest for the Immune System and the Central Nervous System cells. Thus, each cell is associated with a specific phenotype based on the more significant enriched gene set. 
+Let's try to classify the TME cells of the BCH836 patient, excluding malignant cells from the dataset.
+
+```{r, message=FALSE, warning=FALSE, eval=TRUE, echo=TRUE}
+Tme.cells <- rownames(H3K27.meta)[which(H3K27.meta$Type != "Malignant")]
+H3K27.tme <- H3K27[, Tme.cells] 
+```
+
+Note that `TME.classification` function can take a long time if the number of cells to test is large.
+
+```{r, message=FALSE, warning=FALSE, eval=TRUE, echo=TRUE}
+Class <- TME.classification(expMat = H3K27.tme, ncore = 48) 
+```
+
+The H3K27M dataset annotation table suggests that non-tumor cells from BCH836 patient are composed by 54 Immune and 34 Oligodendrocyte cells, respectively. 
+The `TME.classification` function identifies a similar number of Oligodendrocytes and Immune cells, distinguishing the latter mainly in Microglia, Monocytes and Macrophages and fewer other Immune cells.
+
+```{r, message=FALSE, warning=FALSE, eval=TRUE, echo=TRUE}
+table(Class$Class[Tme.cells], H3K27.meta[Tme.cells, "Type"])
+```
+
+Finally, using the previously calculated t-SNE or a set of user-defined coordinates, you can view the new classification of the TME.
+
+```{r, fig.align = "center", message=FALSE, warning=FALSE, eval=TRUE, echo=TRUE}
+TME.plot(tsneData = BCH836.result$tsneData, Class,cexPoint = 0.8)
+```
 
 ##### References
-1. Vento-Tormo, R., Efremova, M., Botting, R. A., Turco, M. Y., Vento-Tormo, M., Meyer, K. B., ... & Gardner, L. (2018). Single-cell reconstruction of the early maternal–fetal interface in humans. Nature, 563(7731), 347.
+1. Filbin, M. G., Tirosh, I., Hovestadt, V., Shaw, M. L., Escalante, L. E., Mathewson, N. D., ... & Haberler, C. (2018). Developmental and oncogenic programs in H3K27M gliomas dissected by single-cell RNA-seq. Science, 360(6386), 331-335.
 
-2. Filbin, M. G., Tirosh, I., Hovestadt, V., Shaw, M. L., Escalante, L. E., Mathewson, N. D., ... & Haberler, C. (2018). Developmental and oncogenic programs in H3K27M gliomas dissected by single-cell RNA-seq. Science, 360(6386), 331-335.
+2. Vento-Tormo, R., Efremova, M., Botting, R. A., Turco, M. Y., Vento-Tormo, M., Meyer, K. B., ... & Gardner, L. (2018). Single-cell reconstruction of the early maternal???fetal interface in humans. Nature, 563(7731), 347.
 
+3. Maaten, L. V. D., & Hinton, G. (2008). Visualizing data using t-SNE. Journal of machine learning research, 9(Nov), 2579-2605.
+
+4. Frattini, V., Pagnotta, S. M., Fan, J. J., Russo, M. V., Lee, S. B., Garofano, L., ... & Frederick, V. (2018). A metabolic function of FGFR3-TACC3 gene fusions in cancer. Nature, 553(7687), 222.
