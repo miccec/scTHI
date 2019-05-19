@@ -27,3 +27,8 @@ H3K27.meta includes the annotation of each cell, so as to identify the tumor cel
 ##          Filter     Immune cell       Malignant Oligodendrocyte 
 ##               2              53             438              34
 ```
+
+```{r}
+Malignant <- rownames(H3K27.meta)[H3K27.meta$Type == "Malignant"]
+Immune <- rownames(H3K27.meta)[H3K27.meta$Type == "Immune cell"]
+```
