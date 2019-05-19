@@ -11,7 +11,8 @@ LazyData: true
 Imports: doMC,
         foreach,
         parallel,
-        iterators
+        iterators,
+    Rtsne,
+    RSpectra
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
-    
