@@ -12,7 +12,6 @@ Imports: doMC,
         foreach,
         parallel,
         iterators,
-    Rtsne,
-   
+    Rtsne
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
