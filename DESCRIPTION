@@ -13,6 +13,6 @@ Imports: doMC,
         parallel,
         iterators,
     Rtsne,
-    RSpectra
+   
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
