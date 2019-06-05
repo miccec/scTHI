@@ -107,7 +107,7 @@ scTHI.score <- function(expMat, cellCusterA, cellCusterB, cellCusterAName, cellC
   if(PValue == TRUE){
     message("Computing permutation....")
 
-    load("/storage/gluster/vol1/SHARED/HOMEFOLDERS/caruso/scProject/NYnontumor/Phone/PhoneCustom/package_data/interactionTable/interaction_tableComplete_1144.RData") #### da rimuovere per il pacchetto
+    #load("/storage/gluster/vol1/SHARED/HOMEFOLDERS/caruso/scProject/NYnontumor/Phone/PhoneCustom/package_data/interactionTable/interaction_tableComplete_1144.RData") #### da rimuovere per il pacchetto
     interaction_table <- interaction_table[rownames(result), ]
     columnToadd <- c("partnerA1", "partnerA2", "partnerA3", "partnerB1", "partnerB2", "partnerB3")
     result <- data.frame(interaction_table[, columnToadd], result, stringsAsFactors = F)
