@@ -250,8 +250,7 @@ scTHI.runTsne <- function(scTHIresult){
   variableGenes <- names(filter)[filter > foldChange]
   expMat <- expMat[variableGenes, ]
 
-  library("Rtsne")
-  require("RSpectra")
+  require("Rtsne")
   expMatT <- t(expMat)
   set.seed(1) ### for reproducibility
   tsne_out <- Rtsne(expMatT)
