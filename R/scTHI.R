@@ -1,7 +1,7 @@
-
-scTHI.score <- function(expMat, cellCusterA, cellCusterB, cellCusterAName, cellCusterBName, topRank = 10, fileNameBase = "scTHI", filterCutoff = 0.50,
-                        PValue = TRUE, pvalueCutoff = 0.05, nPermu = 1000, ncore = 8){
-
+scTHI.score <- function (expMat, cellCusterA, cellCusterB, cellCusterAName, cellCusterBName,
+                         topRank = 10, autocrineEffect = TRUE, fileNameBase = "scTHI", filterCutoff = 0.5,
+                         PValue = TRUE, pvalueCutoff = 0.05, nPermu = 1000, ncore = 8)
+{
   #' scTHI.score
   #'
   #' This function allows the user to compute a score for a set of ligand-receptor pairs, from a single cell gene expression matrix,
@@ -28,19 +28,24 @@ scTHI.score <- function(expMat, cellCusterA, cellCusterB, cellCusterAName, cellC
   #' @examples
   #'
   #' scTHI
-    ####################### check rownames expMat
-  #load("/storage/gluster/vol1/SHARED/HOMEFOLDERS/caruso/scProject/NYnontumor/Phone/PhoneCustom/package_data/interactionTable/interaction_tableComplete_1144.RData") #### da rimuovere x il pacchetto
-  tmp_check <- interaction_table[, c("partnerA1" ,"partnerA2", "partnerA3", "partnerB1", "partnerB2", "partnerB3")]
+  ###################### check all interaction genes in expMat #####################
+  tmp_check <- interaction_table[, c("partnerA1", "partnerA2","partnerA3", "partnerB1", "partnerB2", "partnerB3")]
   tmp_check <- unique(tmp_check[!is.na(tmp_check)])
-  if(sum(tmp_check %in% rownames(expMat)) != length(tmp_check)){
+  if (sum(tmp_check %in% rownames(expMat)) != length(tmp_check)) {
     tmp_genes <- setdiff(tmp_check, rownames(expMat))
-    tmp <- which(interaction_table$partnerA1 %in% tmp_genes | interaction_table$partnerA2 %in% tmp_genes | interaction_table$partnerA3 %in% tmp_genes | interaction_table$partnerB1 %in% tmp_genes | interaction_table$partnerB2 %in% tmp_genes | interaction_table$partnerB3 %in% tmp_genes)
+    tmp <- which(interaction_table$partnerA1 %in% tmp_genes |
+                   interaction_table$partnerA2 %in% tmp_genes | interaction_table$partnerA3 %in%
+                   tmp_genes | interaction_table$partnerB1 %in% tmp_genes |
+                   interaction_table$partnerB2 %in% tmp_genes | interaction_table$partnerB3 %in%
+                   tmp_genes)
     interaction_table <- interaction_table[-tmp, ]
     message("Warning: Not all interaction genes are in expMat")
   }
-  if(nrow(interaction_table) == 0) stop("ERROR: No interaction genes to test")
+  if (nrow(interaction_table) == 0)
+    stop("ERROR: No interaction genes to test")
 
-  ######################### compute score ##################
+
+  ###################### scTHI score ##############################
   message(paste("Computing score for", nrow(interaction_table), "interaction pairs..."))
 
   ddataA <- expMat[, cellCusterA]
@@ -49,18 +54,43 @@ scTHI.score <- function(expMat, cellCusterA, cellCusterB, cellCusterAName, cellC
   ddataA_ <- apply(ddataA_, 2, function(x) x <= n)
   rnkA <- rep(0, nrow(interaction_table))
   expValueA <- rep(0, nrow(interaction_table))
-  names(rnkA) <- names(expValueA) <- rownames(interaction_table)
-  for(i in 1:nrow(interaction_table)){
-    ggenes <- interaction_table[i, c("partnerA1", "partnerA2", "partnerA3")]
-    ggenes <- as.vector(ggenes[!is.na(ggenes)])
-    tmp_genes <- ddataA_[ggenes, , drop = F]
-    tmp <- colSums(tmp_genes)
-    rnkA[i] <- round(sum(tmp == nrow(tmp_genes))/ncol(tmp_genes), digits = 2)
-    expValueA[i] <- paste(round(rowMeans(ddataA[ggenes, cellCusterA, drop = F]), digits = 2), collapse = " # ")
+  names(rnkA) <- rownames(interaction_table)
+  names(expValueA) <- rownames(interaction_table)
+
+  if(autocrineEffect == FALSE){
+    for (i in 1:nrow(interaction_table)) {
+      ggenes1 <- interaction_table[i, c("partnerA1", "partnerA2",  "partnerA3")]
+      ggenes1 <- as.vector(ggenes1[!is.na(ggenes1)])
+      tmp_genes1 <- ddataA_[ggenes1, , drop = F]
+      tmp1 <- colSums(tmp_genes1 == TRUE)
+
+      ggenes2 <- interaction_table[i, c("partnerB1", "partnerB2", "partnerB3")]
+      ggenes2 <- as.vector(ggenes2[!is.na(ggenes2)])
+      tmp_genes2 <- ddataA_[ggenes2, , drop = F]
+      tmp2 <- colSums(tmp_genes2 == FALSE)
+      tmp <- tmp1 + tmp2
+
+      rnkA[i] <- round(sum(tmp == (nrow(tmp_genes1) + nrow(tmp_genes2)))/ncol(tmp_genes1), digits = 2)
+      expValueA[i] <- paste(round(rowMeans(ddataA[ggenes1, cellCusterA, drop = F]), digits = 2), collapse = " # ")
+    }
   }
-  resultA <- data.frame(rnkPartnerA = rnkA, expValueA = expValueA, stringsAsFactors = F)
+  if(autocrineEffect == TRUE){
+    for (i in 1:nrow(interaction_table)) {
+      ggenes1 <- interaction_table[i, c("partnerA1", "partnerA2",  "partnerA3")]
+      ggenes1 <- as.vector(ggenes1[!is.na(ggenes1)])
+      tmp_genes1 <- ddataA_[ggenes1, , drop = F]
+      tmp1 <- colSums(tmp_genes1 == TRUE)
+      tmp <- tmp1
+
+      rnkA[i] <- round(sum(tmp == nrow(tmp_genes1))/ncol(tmp_genes1), digits = 2)
+      expValueA[i] <- paste(round(rowMeans(ddataA[ggenes1, cellCusterA, drop = F]), digits = 2), collapse = " # ")
+    }
+  }
+
+  resultA <- data.frame(rnkPartnerA = rnkA, expValueA = expValueA,  stringsAsFactors = F)
   colnames(resultA) <- paste0(colnames(resultA), "_", cellCusterAName)
-  print(paste("Computed", i , "ranked values for partner A"))
+  print(paste("Computed", i, "ranked values for partner A"))
+
 
   ddataB <- expMat[, cellCusterB]
   n <- round(nrow(ddataB) * topRank/100)
@@ -68,112 +98,283 @@ scTHI.score <- function(expMat, cellCusterA, cellCusterB, cellCusterAName, cellC
   ddataB_ <- apply(ddataB_, 2, function(x) x <= n)
   rnkB <- rep(0, nrow(interaction_table))
   expValueB <- rep(0, nrow(interaction_table))
-  names(rnkB) <- names(expValueB) <- rownames(interaction_table)
-  for(i in 1:nrow(interaction_table)){
-    ggenes <- interaction_table[i, c("partnerB1", "partnerB2", "partnerB3")]
-    ggenes <- as.vector(ggenes[!is.na(ggenes)])
-    tmp_genes <- ddataB_[ggenes, , drop = F]
-    tmp <- colSums(tmp_genes)
-    rnkB[i] <- round(sum(tmp == nrow(tmp_genes))/ncol(tmp_genes), digits = 2)
-    expValueB[i] <- paste(round(rowMeans(ddataB[ggenes, cellCusterB, drop = F]), digits = 2), collapse = " # ")
+  names(rnkB) <- rownames(interaction_table)
+  names(expValueB) <- rownames(interaction_table)
+
+  if(autocrineEffect == FALSE){
+    for (i in 1:nrow(interaction_table)) {
+      ggenes1 <- interaction_table[i, c("partnerB1", "partnerB2",  "partnerB3")]
+      ggenes1 <- as.vector(ggenes1[!is.na(ggenes1)])
+      tmp_genes1 <- ddataB_[ggenes1, , drop = F]
+      tmp1 <- colSums(tmp_genes1 == TRUE)
+
+      ggenes2 <- interaction_table[i, c("partnerA1", "partnerA2", "partnerA3")]
+      ggenes2 <- as.vector(ggenes2[!is.na(ggenes2)])
+      tmp_genes2 <- ddataB_[ggenes2, , drop = F]
+      tmp2 <- colSums(tmp_genes2 == FALSE)
+      tmp <- tmp1 + tmp2
+
+      rnkB[i] <- round(sum(tmp == (nrow(tmp_genes1) + nrow(tmp_genes2)))/ncol(tmp_genes1),  digits = 2)
+      expValueB[i] <- paste(round(rowMeans(ddataB[ggenes1, cellCusterB, drop = F]), digits = 2), collapse = " # ")
+    }
   }
+  if(autocrineEffect == TRUE){
+    for (i in 1:nrow(interaction_table)) {
+      ggenes1 <- interaction_table[i, c("partnerB1", "partnerB2",  "partnerB3")]
+      ggenes1 <- as.vector(ggenes1[!is.na(ggenes1)])
+      tmp_genes1 <- ddataB_[ggenes1, , drop = F]
+      tmp1 <- colSums(tmp_genes1 == TRUE)
+      tmp <- tmp1
+
+      rnkB[i] <- round(sum(tmp == nrow(tmp_genes1))/ncol(tmp_genes1),  digits = 2)
+      expValueB[i] <- paste(round(rowMeans(ddataB[ggenes1, cellCusterB, drop = F]), digits = 2), collapse = " # ")
+    }
+  }
+
   resultB <- data.frame(rnkPartnerB = rnkB, expValueB = expValueB, stringsAsFactors = F)
   colnames(resultB) <- paste0(colnames(resultB), "_", cellCusterBName)
-  print(paste("Computed", i , "ranked values for partner B"))
+  print(paste("Computed", i, "ranked values for partner B"))
 
   SCORE <- rowMeans(cbind(rnkA, rnkB))
   result <- data.frame(interaction_table, resultA, resultB, SCORE)
 
-  #### remove low rank-score interaction
-  message("Removing low rank-score interactions...")
+  message("Removing low score interactions...")
   interestColumn <- c(paste0("rnkPartnerA_", cellCusterAName), paste0("rnkPartnerB_", cellCusterBName))
   tmp <- rowSums(result[, interestColumn] < filterCutoff)
   result[tmp != 0, "SCORE"] <- NA
   result <- result[!is.na(result$SCORE), ]
-
-  #### prepare final result
   result <- result[order(result$SCORE, decreasing = T), ]
   result <- data.frame(interationPair = rownames(result), result, stringsAsFactors = F)
   columnToremove <- c("partnerA1", "partnerA2", "partnerA3", "partnerB1", "partnerB2", "partnerB3")
   result <- result[, setdiff(colnames(result), columnToremove)]
 
-  if(nrow(result) == 0) stop("No interaction pair exceed the score filterCutoff")
+  if (nrow(result) == 0)
+    stop("No interaction pair exceed the score filterCutoff")
+
   scTHIresult <- list(result, expMat, cellCusterA, cellCusterB)
   names(scTHIresult) <- c("result", "expMat", cellCusterAName, cellCusterBName)
-  save(scTHIresult, file = paste0(fileNameBase, "_", cellCusterAName, "VS", cellCusterBName, ".RData"))
 
-
-  ######################### compute permutations ##########
-  if(PValue == TRUE){
+  ###################### Permutation #########
+  if (PValue == TRUE) {
     message("Computing permutation....")
-
-    #load("/storage/gluster/vol1/SHARED/HOMEFOLDERS/caruso/scProject/NYnontumor/Phone/PhoneCustom/package_data/interactionTable/interaction_tableComplete_1144.RData") #### da rimuovere per il pacchetto
     interaction_table <- interaction_table[rownames(result), ]
     columnToadd <- c("partnerA1", "partnerA2", "partnerA3", "partnerB1", "partnerB2", "partnerB3")
     result <- data.frame(interaction_table[, columnToadd], result, stringsAsFactors = F)
 
-    ### list of permutated gene names
-    genestopermut <- rownames(expMat)
-    geneList <- vector("list", nPermu)
-    names(geneList) <- paste0("permutation", 1:length(geneList))
-    for(i in 1:length(geneList)){
-      geneList[[i]] <- sample(genestopermut, replace = F)
+    if(length(grep("simple", result$interactionType)) != 0){
+      sample_pairInteraction <- rownames(result)[result$interactionType == "simple"][1]
+
+      require(doMC)
+      registerDoMC(ncore)
+      if(autocrineEffect == FALSE){
+        ans <- foreach(gg = 1:nPermu,.combine = c) %dopar% {
+          ddataA <- expMat[, cellCusterA]
+          ddataA <- apply(ddataA, 2, function(x) sample(x, replace = FALSE))
+          rownames(ddataA) <- rownames(expMat)
+
+          n <- round(nrow(ddataA) * topRank/100)
+          ddataA_ <- apply(ddataA, 2, function(x) rank(-x))
+          ddataA_ <- apply(ddataA_, 2, function(x) x <= n)
+
+          ggenes1 <- result[sample_pairInteraction, c("partnerA1", "partnerA2", "partnerA3")]
+          ggenes1 <- as.vector(ggenes1[!is.na(ggenes1)])
+          tmp_genes1 <- ddataA_[ggenes1, , drop = F]
+          tmp1 <- colSums(tmp_genes1 == TRUE)
+
+          ggenes2 <- result[sample_pairInteraction, c("partnerB1", "partnerB2", "partnerB3")]
+          ggenes2 <- as.vector(ggenes2[!is.na(ggenes2)])
+          tmp_genes2 <- ddataA_[ggenes2, , drop = F]
+          tmp2 <- colSums(tmp_genes2 == FALSE)
+
+          tmp <- tmp1 + tmp2
+          rnk_permuA <- round(sum(tmp == (nrow(tmp_genes1) + nrow(tmp_genes2)))/ncol(tmp_genes1), digits = 2)
+
+
+          ddataB <- expMat[, cellCusterB]
+          ddataB <- apply(ddataB, 2, function(x) sample(x, replace = FALSE))
+          rownames(ddataB) <- rownames(expMat)
+          n <- round(nrow(ddataB) * topRank/100)
+          ddataB_ <- apply(ddataB, 2, function(x) rank(-x))
+          ddataB_ <- apply(ddataB_, 2, function(x) x <= n)
+
+          ggenes1 <- result[sample_pairInteraction, c("partnerB1", "partnerB2", "partnerB3")]
+          ggenes1 <- as.vector(ggenes1[!is.na(ggenes1)])
+          tmp_genes1 <- ddataB_[ggenes1, , drop = F]
+          tmp1 <- colSums(tmp_genes1 == TRUE)
+
+          ggenes2 <- result[sample_pairInteraction, c("partnerA1", "partnerA2", "partnerA3")]
+          ggenes2 <- as.vector(ggenes2[!is.na(ggenes2)])
+          tmp_genes2 <- ddataB_[ggenes2, , drop = F]
+          tmp2 <- colSums(tmp_genes2 == FALSE)
+          tmp <- tmp1 + tmp2
+
+          rnk_permuB <- round(sum(tmp == (nrow(tmp_genes1) + nrow(tmp_genes2)))/ncol(tmp_genes1),  digits = 2)
+          rnkInteraction <- mean(rnk_permuA, rnk_permuB)
+          return(rnkInteraction)
+        }
+        permutatedPvalue_simple <- ans
+      }
+      if(autocrineEffect == TRUE){
+        ans <- foreach(gg = 1:nPermu,.combine = c) %dopar% {
+          ddataA <- expMat[, cellCusterA]
+          ddataA <- apply(ddataA, 2, function(x) sample(x, replace = FALSE))
+          rownames(ddataA) <- rownames(expMat)
+
+          n <- round(nrow(ddataA) * topRank/100)
+          ddataA_ <- apply(ddataA, 2, function(x) rank(-x))
+          ddataA_ <- apply(ddataA_, 2, function(x) x <= n)
+
+          ggenes1 <- result[sample_pairInteraction, c("partnerA1", "partnerA2", "partnerA3")]
+          ggenes1 <- as.vector(ggenes1[!is.na(ggenes1)])
+          tmp_genes1 <- ddataA_[ggenes1, , drop = F]
+          tmp1 <- colSums(tmp_genes1 == TRUE)
+          tmp <- tmp1
+          rnk_permuA <- round(sum(tmp == nrow(tmp_genes1))/ncol(tmp_genes1), digits = 2)
+
+
+          ddataB <- expMat[, cellCusterB]
+          ddataB <- apply(ddataB, 2, function(x) sample(x, replace = FALSE))
+          rownames(ddataB) <- rownames(expMat)
+          n <- round(nrow(ddataB) * topRank/100)
+          ddataB_ <- apply(ddataB, 2, function(x) rank(-x))
+          ddataB_ <- apply(ddataB_, 2, function(x) x <= n)
+
+          ggenes1 <- result[sample_pairInteraction, c("partnerB1", "partnerB2", "partnerB3")]
+          ggenes1 <- as.vector(ggenes1[!is.na(ggenes1)])
+          tmp_genes1 <- ddataB_[ggenes1, , drop = F]
+          tmp1 <- colSums(tmp_genes1 == TRUE)
+          tmp <- tmp1
+
+          rnk_permuB <- round(sum(tmp == nrow(tmp_genes1))/ncol(tmp_genes1),  digits = 2)
+          rnkInteraction <- mean(rnk_permuA, rnk_permuB)
+          return(rnkInteraction)
+        }
+        permutatedPvalue_simple <- ans
+      }
     }
 
-    #sample_pairInteraction <- sample(1:nrow(result), 1) ### scelgo una coppia a caso
-    sample_pairInteraction <- 1 ### scelgo la prima coppia
+    if(length(grep("complex", result$interactionType)) != 0){
+      sample_pairInteraction <- rownames(result)[result$interactionType == "complex"][1]
 
-    require(doMC)
-    registerDoMC(ncore)
-    ans <- foreach(gg = 1:length(geneList)) %dopar% {
-      ddataA <- expMat[, cellCusterA]
-      rownames(ddataA) <- geneList[[gg]]
-      n <- round(nrow(ddataA) * topRank/100)
-      ddataA_ <- apply(ddataA, 2, function(x) rank(-x))
-      ddataA_ <- apply(ddataA_, 2, function(x) x <= n)
-      ggenes <- result[sample_pairInteraction, c("partnerA1", "partnerA2", "partnerA3")]
-      ggenes <- as.vector(ggenes[!is.na(ggenes)])
-      tmp_genes <- ddataA_[ggenes, , drop = F]
-      tmp <- colSums(tmp_genes)
-      rnk_permuA <- round(sum(tmp == nrow(tmp_genes))/ncol(tmp_genes), digits = 2)
+      require(doMC)
+      registerDoMC(ncore)
+      if(autocrineEffect == FALSE){
+        ans <- foreach(gg = 1:nPermu,.combine = c) %dopar% {
+          ddataA <- expMat[, cellCusterA]
+          ddataA <- apply(ddataA, 2, function(x) sample(x, replace = FALSE))
+          rownames(ddataA) <- rownames(expMat)
 
-      ddataB <- expMat[, cellCusterB]
-      rownames(ddataB) <- geneList[[gg]]
-      n <- round(nrow(ddataB) * topRank/100)
-      ddataB_ <- apply(ddataB, 2, function(x) rank(-x))
-      ddataB_ <- apply(ddataB_, 2, function(x) x <= n)
-      ggenes <- result[sample_pairInteraction, c("partnerB1", "partnerB2", "partnerB3")]
-      ggenes <- as.vector(ggenes[!is.na(ggenes)])
-      tmp_genes <- ddataB_[ggenes, , drop = F]
-      tmp <- colSums(tmp_genes)
-      rnk_permuB <- round(sum(tmp == nrow(tmp_genes))/ncol(tmp_genes), digits = 2)
+          n <- round(nrow(ddataA) * topRank/100)
+          ddataA_ <- apply(ddataA, 2, function(x) rank(-x))
+          ddataA_ <- apply(ddataA_, 2, function(x) x <= n)
 
-      rnkInteraction <- mean(rnk_permuA, rnk_permuB)
-      return(rnkInteraction)
+          ggenes1 <- result[sample_pairInteraction, c("partnerA1", "partnerA2", "partnerA3")]
+          ggenes1 <- as.vector(ggenes1[!is.na(ggenes1)])
+          tmp_genes1 <- ddataA_[ggenes1, , drop = F]
+          tmp1 <- colSums(tmp_genes1 == TRUE)
+
+          ggenes2 <- result[sample_pairInteraction, c("partnerB1", "partnerB2", "partnerB3")]
+          ggenes2 <- as.vector(ggenes2[!is.na(ggenes2)])
+          tmp_genes2 <- ddataA_[ggenes2, , drop = F]
+          tmp2 <- colSums(tmp_genes2 == FALSE)
+
+          tmp <- tmp1 + tmp2
+          rnk_permuA <- round(sum(tmp == (nrow(tmp_genes1) + nrow(tmp_genes2)))/ncol(tmp_genes1),
+                              digits = 2)
+
+
+          ddataB <- expMat[, cellCusterB]
+          ddataB <- apply(ddataB, 2, function(x) sample(x, replace = FALSE))
+          rownames(ddataB) <- rownames(expMat)
+          n <- round(nrow(ddataB) * topRank/100)
+          ddataB_ <- apply(ddataB, 2, function(x) rank(-x))
+          ddataB_ <- apply(ddataB_, 2, function(x) x <= n)
+
+          ggenes1 <- result[sample_pairInteraction, c("partnerB1", "partnerB2", "partnerB3")]
+          ggenes1 <- as.vector(ggenes1[!is.na(ggenes1)])
+          tmp_genes1 <- ddataB_[ggenes1, , drop = F]
+          tmp1 <- colSums(tmp_genes1 == TRUE)
+
+          ggenes2 <- result[sample_pairInteraction, c("partnerA1", "partnerA2", "partnerA3")]
+          ggenes2 <- as.vector(ggenes2[!is.na(ggenes2)])
+          tmp_genes2 <- ddataB_[ggenes2, , drop = F]
+          tmp2 <- colSums(tmp_genes2 == FALSE)
+          tmp <- tmp1 + tmp2
+
+          rnk_permuB <- round(sum(tmp == (nrow(tmp_genes1) + nrow(tmp_genes2)))/ncol(tmp_genes1),  digits = 2)
+          rnkInteraction <- mean(rnk_permuA, rnk_permuB)
+          return(rnkInteraction)
+        }
+        permutatedPvalue_complex <- ans
+      }
+      if(autocrineEffect == TRUE){
+        ans <- foreach(gg = 1:nPermu,.combine = c) %dopar% {
+          ddataA <- expMat[, cellCusterA]
+          ddataA <- apply(ddataA, 2, function(x) sample(x, replace = FALSE))
+          rownames(ddataA) <- rownames(expMat)
+
+          n <- round(nrow(ddataA) * topRank/100)
+          ddataA_ <- apply(ddataA, 2, function(x) rank(-x))
+          ddataA_ <- apply(ddataA_, 2, function(x) x <= n)
+
+          ggenes1 <- result[sample_pairInteraction, c("partnerA1", "partnerA2", "partnerA3")]
+          ggenes1 <- as.vector(ggenes1[!is.na(ggenes1)])
+          tmp_genes1 <- ddataA_[ggenes1, , drop = F]
+          tmp1 <- colSums(tmp_genes1 == TRUE)
+          tmp <- tmp1
+          rnk_permuA <- round(sum(tmp == nrow(tmp_genes1))/ncol(tmp_genes1), digits = 2)
+
+
+          ddataB <- expMat[, cellCusterB]
+          ddataB <- apply(ddataB, 2, function(x) sample(x, replace = FALSE))
+          rownames(ddataB) <- rownames(expMat)
+          n <- round(nrow(ddataB) * topRank/100)
+          ddataB_ <- apply(ddataB, 2, function(x) rank(-x))
+          ddataB_ <- apply(ddataB_, 2, function(x) x <= n)
+
+          ggenes1 <- result[sample_pairInteraction, c("partnerB1", "partnerB2", "partnerB3")]
+          ggenes1 <- as.vector(ggenes1[!is.na(ggenes1)])
+          tmp_genes1 <- ddataB_[ggenes1, , drop = F]
+          tmp1 <- colSums(tmp_genes1 == TRUE)
+          tmp <- tmp1
+
+          rnk_permuB <- round(sum(tmp == nrow(tmp_genes1))/ncol(tmp_genes1),  digits = 2)
+          rnkInteraction <- mean(rnk_permuA, rnk_permuB)
+          return(rnkInteraction)
+        }
+        permutatedPvalue_complex <- ans
+      }
+
     }
 
-    permutatedPvalue <- unlist(ans)
     SCOREpValue <- c()
-    for(k in 1:nrow(result)){
-      SCOREpValue <- c(SCOREpValue, sum(permutatedPvalue > result[k, "SCORE"])/nPermu)
+    for (k in 1:nrow(result)) {
+      if(result[k, "interactionType"] == "simple"){
+        SCOREpValue <- c(SCOREpValue, sum(permutatedPvalue_simple > result[k, "SCORE"])/nPermu)
+      }
+      if(result[k, "interactionType"] == "complex"){
+        SCOREpValue <- c(SCOREpValue, sum(permutatedPvalue_complex > result[k, "SCORE"])/nPermu)
+      }
     }
-    result <- data.frame(result, SCOREpValue, stringsAsFactors = F)
-    result <- result[result$SCOREpValue <= pvalueCutoff, ]
 
+    FDR <- round(p.adjust(SCOREpValue, method = "fdr"), digits = 3)
+    result <- data.frame(result, pValue = SCOREpValue, FDR=FDR, stringsAsFactors = F)
+
+    result <- result[result$pValue <= pvalueCutoff, ]
     columnToremove <- c("partnerA1", "partnerA2", "partnerA3", "partnerB1", "partnerB2", "partnerB3")
     result <- result[, setdiff(colnames(result), columnToremove)]
     scTHIresult$result <- result
-    save(scTHIresult, file = paste0(fileNameBase, "_", cellCusterAName, "VS", cellCusterBName, ".RData"))
+    save(scTHIresult, file = paste0(fileNameBase, "_", cellCusterAName,  "&", cellCusterBName, ".RData"))
   }
-
-  message("Interaction pair:")
+  message("Interaction pairs detected:")
   print(rownames(scTHIresult$result))
   return(scTHIresult)
 }
 
 
-scTHI.plotResult <- function(scTHIresult, cexNames = 0.8, plotType = c("score", "pair"), legendPos = c("topleft", "topright")){
 
+
+scTHI.plotResult <- function(scTHIresult, cexNames = 0.8, plotType = c("score", "pair"), nRes = NULL){
   #' scTHI.plotResults
   #'
   #' This function  ...
@@ -184,47 +385,50 @@ scTHI.plotResult <- function(scTHIresult, cexNames = 0.8, plotType = c("score", 
   #' scTHI.plotResult
 
   result <- scTHIresult$result
-  legendPos <- match.arg(legendPos)
+  if(!is.null(nRes)){
+    result <- result[1:nRes, ]
+  }
+
 
   if(plotType == "score"){
-    tmp <- as.matrix(result[, c("SCORE", "SCOREpValue")])
-    pvalues <- tmp[,"SCOREpValue"]
+    tmp <- as.matrix(result[, c("SCORE", "pValue")])
+    pvalues <- tmp[,"pValue"]
     for(i in 1:length(pvalues)){
-      if(tmp[i, "SCOREpValue"] > 0.05){
+      if(tmp[i, "pValue"] > 0.05){
         pvalues[i] <- "ns"
       }
-      if(tmp[i, "SCOREpValue"] <= 0.05){
+      if(tmp[i, "pValue"] <= 0.05){
         pvalues[i] <- "*"
       }
-      if(tmp[i, "SCOREpValue"] <= 0.01){
+      if(tmp[i, "pValue"] <= 0.01){
         pvalues[i] <- "**"
       }
-      if(tmp[i, "SCOREpValue"] <= 0.001){
+      if(tmp[i, "pValue"] <= 0.001){
         pvalues[i] <- "***"
       }
-      if(tmp[i, "SCOREpValue"] <= 0.0001){
+      if(tmp[i, "pValue"] <= 0.0001){
         pvalues[i] <- "****"
       }
     }
 
-    barplot(t(tmp[, "SCORE"]), beside = T, ylim = c(0,1.1),  ylab = "scTHI Score", col = c("lightseagreen"), cex.names = cexNames)
-    text(x = seq(1.5, by = 2, length.out = nrow(tmp)), y = 1.05, labels =  pvalues, cex = 2)
+    par(mar=c(5, 10, 4, 2) + 0.1)
+    barplot(t(tmp[, "SCORE"]), beside = T, xlim = c(0,1.1),  xlab = "scTHI Score", col = c("lightseagreen"), cex.names = cexNames, horiz = TRUE, las=2)
+    text(x = 1.05, y = seq(1.5, by = 2, length.out = nrow(tmp)), labels =  pvalues, cex = 1.2)
+    par(mar=c(5, 4, 4, 2) + 0.1)
 
-    #sizedot <- tmp[, "SCOREpValue"]
-    #dotchart(tmp[, "SCORE"], xlim = c(0,1.1),  xlab = "scTHI Score", col = c("lightseagreen"), cex = 1, pch = 19, pt.cex = -log10(sizedot)*4, lcolor = "slategray3")
   }
 
   if(plotType == "pair"){
     tmp <- as.matrix(result[, grep("rnk", colnames(result))])
-    barplot(t(tmp), beside = T, ylim = c(0,1.1),  ylab = "% of Cells", col = c("#F8766D", "#00BFC4"), cex.names = cexNames)
-    legend(legendPos, legend = c("ClusterA", "ClusterB"), col = c("#F8766D", "#00BFC4"), cex = 1, pch = 15, box.lty=0)
+    par(mar=c(5, 10, 4, 2) + 0.1, oma=c(0, 0, 0, 6))
+    barplot(t(tmp), beside = T, xlim = c(0,1.1),  xlab = "% of Cells", col = c("#F8766D", "#00BFC4"), cex.names = cexNames, horiz = TRUE, las =2)
+    legend(par('usr')[2], par('usr')[4],  bty='n', xpd=NA, legend = c("ClusterA", "ClusterB"), col = c("#F8766D", "#00BFC4"), cex = 1, pch = 15, box.lty=0, bg="transparent")
+    par(mar=c(5, 4, 4, 2) + 0.1, oma=c(0, 0, 0, 0))
   }
 }
 
 
 scTHI.runTsne <- function(scTHIresult){
-
-
   #' scTHI.runTsne
   #'
   #' This function  ...
@@ -233,7 +437,6 @@ scTHI.runTsne <- function(scTHIresult){
   #' @examples
   #'
   #' scTHI.runTsne
-
 
   expMat <- scTHIresult$expMat
 
@@ -250,10 +453,10 @@ scTHI.runTsne <- function(scTHIresult){
   variableGenes <- names(filter)[filter > foldChange]
   expMat <- expMat[variableGenes, ]
 
-  require("Rtsne")
+  library("Rtsne")
   expMatT <- t(expMat)
   set.seed(1) ### for reproducibility
-  tsne_out <- Rtsne(expMatT)
+  tsne_out <- Rtsne:::Rtsne(expMatT)
   tsneData <- data.frame(x = tsne_out$Y[,1], y = tsne_out$Y[,2], Sample= colnames(expMat), stringsAsFactors = F)
   rownames(tsneData) <- colnames(expMat)
   scTHIresult <- c(list(tsneData), scTHIresult)
@@ -263,7 +466,6 @@ scTHI.runTsne <- function(scTHIresult){
 
 
 scTHI.plotCluster <- function(scTHIresult, cexPoint = 0.8, legendPos = c("topleft", "topright", "bottomright", "bottomleft")){
-
   #' scTHI.plotCluster
   #'
   #' This function  ...
@@ -272,6 +474,7 @@ scTHI.plotCluster <- function(scTHIresult, cexPoint = 0.8, legendPos = c("toplef
   #' @examples
   #'
   #' scTHI.plotCluster
+
 
   tsneData <- scTHIresult$tsneData
   legendPos <- match.arg(legendPos)
@@ -289,12 +492,11 @@ scTHI.plotCluster <- function(scTHIresult, cexPoint = 0.8, legendPos = c("toplef
     ClusterColors[scTHIresult[[names(Colors)[i]]]] <- Colors[i]
   }
   plot(tsneData[,1:2], pch = 16,  cex = cexPoint , col = ClusterColors[rownames(tsneData)], main = "", xlab = "tSNE 1", ylab = "tSNE 2")
-  legend(legendPos, inset=.02, legend = names(Colors), col = Colors, cex = 1, pch = 15, box.lty=0)
+  legend(legendPos, inset=.02, legend = names(Colors), col = Colors, cex = 1, pch = 15, box.lty=0, bg="transparent")
 }
 
 
 scTHI.plotPairs <- function(scTHIresult, cexPoint = 0.8, interactionToplot){
-
   #' scTHI.plotPairs
   #'
   #' This function  ...
@@ -411,7 +613,9 @@ scTHI.plotPairs <- function(scTHIresult, cexPoint = 0.8, interactionToplot){
          sub = paste0("Range: ", range_exp[1], " to ",  range_exp[2],", MeanExp: ", mean_exp_samples))
 
   }
+  par(mfrow = c(1,1), mar=c(5, 4, 4, 2) + 0.1)
 }
+
 
 
 TME.classification <- function(expMat, ncore = 48, minLenGeneSet = 10, pvalFilter = FALSE, fdrFilter = TRUE, pvalCutoff = 0.01, nesCutoff = 0.58, nNES = 1){
@@ -425,7 +629,7 @@ TME.classification <- function(expMat, ncore = 48, minLenGeneSet = 10, pvalFilte
   #'
   #' TME.classification
 
-
+  #load("/storage/gluster/vol1/SHARED/HOMEFOLDERS/caruso/scProject/NYnontumor/Phone/PhoneCustom/package_data/data/Signatures.RData")
   library(yaGST)
   means <- rowMeans(expMat)
   sds <- apply(expMat, 1, sd)
@@ -445,7 +649,8 @@ TME.classification <- function(expMat, ncore = 48, minLenGeneSet = 10, pvalFilte
 
   NES <- sapply(ans, function(x) x$tmp_NES)
   pValue <- sapply(ans, function(x) x$tmp_pValue)
-  colnames(NES) <- colnames(pValue) <- colnames(expMat)
+  colnames(NES) <-  colnames(expMat)
+  colnames(pValue) <- colnames(expMat)
   FDR <- apply(pValue, 2, function(x) p.adjust(x, method = "fdr"))
 
   if(pvalFilter == TRUE){
