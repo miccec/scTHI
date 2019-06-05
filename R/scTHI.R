@@ -11,7 +11,7 @@ scTHI.score <- function(expMat, cellCusterA, cellCusterB, cellCusterAName, cellC
   #' @param clusterB Vector of columns of expMat that belong to the second cluster.
   #' @param cellCusterAName A character string labeling the clusterA.
   #' @param cellCusterBName A character string labeling the clusterB.
-  #' @param topRank Filter threshold. Set to 10 (default) means that each gene of the interaction pair will be considered as expressed in a cell if it's in the top rank 10%.
+  #' @param topRank Filter threshold. Set to 10 (default) means that each gene of the interaction pair will be considered as expressed in a cell if it's in the top rank 10 percent.
   #' @param fileNameBase Project name.
   #' @param filterCutoff Score threshold (default is 0.50). For each interaction pair, if the score calculated (for the partnerA or partnerB) will be less than filterCutoff the interaction pair will be discarded.
   #' @param foldChange Logical, default is TRUE. This argument allows to calculate a fold change for each gene of the interaction pair (PartenerA and PartnerB) with respect to a third cluster of cells, specified in cellsToCompare.

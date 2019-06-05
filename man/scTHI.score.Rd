@@ -16,7 +16,7 @@ scTHI.score(expMat, cellCusterA, cellCusterB, cellCusterAName,
 
 \item{cellCusterBName}{A character string labeling the clusterB.}
 
-\item{topRank}{Filter threshold. Set to 10 (default) means that each gene of the interaction pair will be considered as expressed in a cell if it's in the top rank 10%.}
+\item{topRank}{Filter threshold. Set to 10 (default) means that each gene of the interaction pair will be considered as expressed in a cell if it's in the top rank 10 percent.}
 
 \item{fileNameBase}{Project name.}
 
