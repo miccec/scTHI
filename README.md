@@ -12,6 +12,6 @@ library(scTHI)
 ````
 ### Documentation and examples
 
-Visti the [wiki page](https://github.com/miccec/scTHI/wiki) for guided examples of use.
+Visit the [wiki page](https://github.com/miccec/scTHI/wiki) for guided examples of use.
 
 
