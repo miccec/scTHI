@@ -6,10 +6,16 @@
 \usage{
 scTHI.plotPairs(scTHIresult, cexPoint = 0.8, interactionToplot)
 }
-\description{
-This function  ...
-}
-\examples{
+\arguments{
+\item{scTHIresult}{scTHI object.}
 
-scTHI.plotPairs
+\item{cexPoint}{Set the point size.}
+
+\item{interactionToplot}{Interaction pair to plot.
+
+scTHI.plotPairs}
+}
+\description{
+Generates a plot on the t-SNE coordinates to show the expression levels of an interaction pair of interest. Each cell is colored according to the corresponding 
+gene expression value.
 }

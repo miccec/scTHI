@@ -375,14 +375,19 @@ scTHI.score <- function (expMat, cellCusterA, cellCusterB, cellCusterAName, cell
 
 
 scTHI.plotResult <- function(scTHIresult, cexNames = 0.8, plotType = c("score", "pair"), nRes = NULL){
-  #' scTHI.plotResults
-  #'
-  #' This function  ...
-  #'
-  #' @export
-  #' @examples
-  #'
   #' scTHI.plotResult
+  #'
+  #' Creates barplots of scTHI.score results.
+  #' 
+  #' @param scTHIresult scTHI object.
+  #' @param cexNames Size of names in barplot.
+  #' @param plotType Type of plot to be generated. Default is "score", can be also "pair". The "score" option will generate a barplot for each resulted interaction pair, 
+  #' representing the calculated interaction score and the related p-Value.The "pair" option will generate two barplot for each resulted interaction pair, 
+  #' representing the percentage of cells of each cluster expressing partnerA and partnerB gene, respectively.
+  #' @param legendPos Character string to custom the legend position.
+  #' 
+  #' scTHI.plotResult
+  
 
   result <- scTHIresult$result
   if(!is.null(nRes)){
@@ -431,12 +436,12 @@ scTHI.plotResult <- function(scTHIresult, cexNames = 0.8, plotType = c("score", 
 scTHI.runTsne <- function(scTHIresult){
   #' scTHI.runTsne
   #'
-  #' This function  ...
-  #'
-  #' @export
-  #' @examples
-  #'
+  #' Runs t-SNE dimensionality reduction on selected features based on Rtsne package.
+  #' 
+  #' @param scTHIresult scTHI object.
+  #' 
   #' scTHI.runTsne
+  
 
   expMat <- scTHIresult$expMat
 
@@ -468,11 +473,12 @@ scTHI.runTsne <- function(scTHIresult){
 scTHI.plotCluster <- function(scTHIresult, cexPoint = 0.8, legendPos = c("topleft", "topright", "bottomright", "bottomleft")){
   #' scTHI.plotCluster
   #'
-  #' This function  ...
-  #'
-  #' @export
-  #' @examples
-  #'
+  #' Graphs the output of scTHI.runTsne, labeling cells by clusters.
+  #' 
+  #' @param scTHIresult scTHI object.
+  #' @param cexPoint Set the point size.
+  #' @param legendPos Character string to custom the legend position.
+  #' 
   #' scTHI.plotCluster
 
 
@@ -499,12 +505,15 @@ scTHI.plotCluster <- function(scTHIresult, cexPoint = 0.8, legendPos = c("toplef
 scTHI.plotPairs <- function(scTHIresult, cexPoint = 0.8, interactionToplot){
   #' scTHI.plotPairs
   #'
-  #' This function  ...
-  #'
-  #' @export
-  #' @examples
-  #'
+  #' Generates a plot on the t-SNE coordinates to show the expression levels of an interaction pair of interest. Each cell is colored according to the corresponding 
+  #' gene expression value.
+  #' 
+  #' @param scTHIresult scTHI object.
+  #' @param cexPoint Set the point size.
+  #' @param interactionToplot Interaction pair to plot.
+  #' 
   #' scTHI.plotPairs
+  
 
 
   tsneData <- scTHIresult$tsneData
@@ -622,11 +631,17 @@ TME.classification <- function(expMat, ncore = 48, minLenGeneSet = 10, pvalFilte
 
   #' TME.classification
   #'
-  #' This function  ...
-  #'
-  #' @export
-  #' @examples
-  #'
+  #' The function allows the user to classify non-tumor cells in tumor microenvironment. It implements the Mann-Whitney-Wilcoxon Gene Set Test (MWW-GST) algorithm and tests for each cell the enrichment of a collection of signatures of different cell types.
+  #' 
+  #' @param expMat Gene expression matrix where rows are genes presented with Hugo Symbols and columns are cells. Gene expression values should be normalized counts.
+  #' @param ncore Number of processors to use.
+  #' @param minLenGeneSet Minimum gene set length to pass to mwwGST function.
+  #' @param pvalFilter Logical, if TRUE results will be filtered for p-Value. Defoult is FALSE.
+  #' @param fdrFilter Logical, if TRUE results will be filtered for FDR.
+  #' @param pvalCutoff Numeric p-Value (or FDR) threshold. Gene set with p-Value (or FDR) greater than pvalCutoff will be discarded (default is 0.01).
+  #' @param nesCutoff Numeric threshold. Gene set with NES greater than nesCutoff will be discarded (default is 0.58)
+  #' @param nNES Default is 1, so each cell is classified with a specific phenotype based on the first significant enriched gene set.
+  #' 
   #' TME.classification
 
   #load("/storage/gluster/vol1/SHARED/HOMEFOLDERS/caruso/scProject/NYnontumor/Phone/PhoneCustom/package_data/data/Signatures.RData")
@@ -688,11 +703,13 @@ TME.classification <- function(expMat, ncore = 48, minLenGeneSet = 10, pvalFilte
 TME.plot <- function(tsneData, Class, cexPoint = 0.8){
   #' TME.plot
   #'
-  #' This function  ...
-  #'
-  #' @export
-  #' @examples
-  #'
+  #' Generates a plot on the t-SNE coordinates, labeling cells by TME classification.
+  #' 
+  #' @param tsneData X and y coordinates of points in the plot.
+  #' @param Class Object returned by TME.classification function.
+  #' @param cexPoint Set the point size.
+  
+  #' 
   #' TME.plot
 
   ClassColor <- Class$ClassLegend[Class$Class]

@@ -6,10 +6,15 @@
 \usage{
 TME.plot(tsneData, Class, cexPoint = 0.8)
 }
-\description{
-This function  ...
-}
-\examples{
+\arguments{
+\item{tsneData}{X and y coordinates of points in the plot.}
 
-TME.plot
+\item{Class}{Object returned by TME.classification function.}
+
+\item{cexPoint}{Set the point size.
+
+TME.plot}
+}
+\description{
+Generates a plot on the t-SNE coordinates, labeling cells by TME classification.
 }

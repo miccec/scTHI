@@ -8,10 +8,25 @@ TME.classification(expMat, ncore = 48, minLenGeneSet = 10,
   pvalFilter = FALSE, fdrFilter = TRUE, pvalCutoff = 0.01,
   nesCutoff = 0.58, nNES = 1)
 }
-\description{
-This function  ...
-}
-\examples{
+\arguments{
+\item{expMat}{Gene expression matrix where rows are genes presented with Hugo Symbols and columns are cells. Gene expression values should be normalized counts.}
 
-TME.classification
+\item{ncore}{Number of processors to use.}
+
+\item{minLenGeneSet}{Minimum gene set length to pass to mwwGST function.}
+
+\item{pvalFilter}{Logical, if TRUE results will be filtered for p-Value. Defoult is FALSE.}
+
+\item{fdrFilter}{Logical, if TRUE results will be filtered for FDR.}
+
+\item{pvalCutoff}{Numeric p-Value (or FDR) threshold. Gene set with p-Value (or FDR) greater than pvalCutoff will be discarded (default is 0.01).}
+
+\item{nesCutoff}{Numeric threshold. Gene set with NES greater than nesCutoff will be discarded (default is 0.58)}
+
+\item{nNES}{Default is 1, so each cell is classified with a specific phenotype based on the first significant enriched gene set.
+
+TME.classification}
+}
+\description{
+The function allows the user to classify non-tumor cells in tumor microenvironment. It implements the Mann-Whitney-Wilcoxon Gene Set Test (MWW-GST) algorithm and tests for each cell the enrichment of a collection of signatures of different cell types.
 }

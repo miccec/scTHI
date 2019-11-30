@@ -7,10 +7,15 @@
 scTHI.plotCluster(scTHIresult, cexPoint = 0.8, legendPos = c("topleft",
   "topright", "bottomright", "bottomleft"))
 }
-\description{
-This function  ...
-}
-\examples{
+\arguments{
+\item{scTHIresult}{scTHI object.}
 
-scTHI.plotCluster
+\item{cexPoint}{Set the point size.}
+
+\item{legendPos}{Character string to custom the legend position.
+
+scTHI.plotCluster}
+}
+\description{
+Graphs the output of scTHI.runTsne, labeling cells by clusters.
 }

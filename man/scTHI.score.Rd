@@ -5,9 +5,9 @@
 \title{scTHI.score}
 \usage{
 scTHI.score(expMat, cellCusterA, cellCusterB, cellCusterAName,
-  cellCusterBName, topRank = 10, fileNameBase = "scTHI",
-  filterCutoff = 0.5, PValue = TRUE, pvalueCutoff = 0.05,
-  nPermu = 1000, ncore = 8)
+  cellCusterBName, topRank = 10, autocrineEffect = TRUE,
+  fileNameBase = "scTHI", filterCutoff = 0.5, PValue = TRUE,
+  pvalueCutoff = 0.05, nPermu = 1000, ncore = 8)
 }
 \arguments{
 \item{expMat}{ScRNA-seq gene expression matrix where rows are genes presented with Hugo Symbols and columns are cells. Gene expression values should be counts or normalized counts.}

@@ -2,15 +2,24 @@
 % Please edit documentation in R/scTHI.R
 \name{scTHI.plotResult}
 \alias{scTHI.plotResult}
-\title{scTHI.plotResults}
+\title{scTHI.plotResult}
 \usage{
 scTHI.plotResult(scTHIresult, cexNames = 0.8, plotType = c("score",
-  "pair"), legendPos = c("topleft", "topright"))
+  "pair"), nRes = NULL)
+}
+\arguments{
+\item{scTHIresult}{scTHI object.}
+
+\item{cexNames}{Size of names in barplot.}
+
+\item{plotType}{Type of plot to be generated. Default is "score", can be also "pair". The "score" option will generate a barplot for each resulted interaction pair, 
+representing the calculated interaction score and the related p-Value.The "pair" option will generate two barplot for each resulted interaction pair, 
+representing the percentage of cells of each cluster expressing partnerA and partnerB gene, respectively.}
+
+\item{legendPos}{Character string to custom the legend position.
+
+scTHI.plotResult}
 }
 \description{
-This function  ...
-}
-\examples{
-
-scTHI.plotResult
+Creates barplots of scTHI.score results.
 }

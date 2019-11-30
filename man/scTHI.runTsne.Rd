@@ -6,10 +6,11 @@
 \usage{
 scTHI.runTsne(scTHIresult)
 }
-\description{
-This function  ...
-}
-\examples{
+\arguments{
+\item{scTHIresult}{scTHI object.
 
-scTHI.runTsne
+scTHI.runTsne}
+}
+\description{
+Runs t-SNE dimensionality reduction on selected features based on Rtsne package.
 }
