@@ -45,6 +45,10 @@ scTHI.score <- function (expMat, cellCusterA, cellCusterB, cellCusterAName, cell
     stop("ERROR: No interaction genes to test")
 
 
+
+
+
+
   ###################### scTHI score ##############################
   message(paste("Computing score for", nrow(interaction_table), "interaction pairs..."))
 
