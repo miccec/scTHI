@@ -7,10 +7,22 @@
 scTHI.runTsne(scTHIresult)
 }
 \arguments{
-\item{scTHIresult}{scTHI object.
-
-scTHI.runTsne}
+\item{scTHIresult}{scTHI object.}
+}
+\value{
+The same object as scTHI.score with a fifth item tsneData
+(data.frame)
 }
 \description{
-Runs t-SNE dimensionality reduction on selected features based on Rtsne package.
+Runs t-SNE dimensionality reduction on selected features based on Rtsne
+package.
+}
+\examples{
+data(scExample)
+result <-  scTHI.score(scExample, cellCusterA = colnames(scExample)[1:30],
+                    cellCusterB = colnames(scExample)[31:100],
+                    cellCusterAName = "ClusterA",
+                    cellCusterBName = "ClusterB", filterCutoff = 0,
+                    pvalueCutoff = 1, nPermu = 100, ncore = 8)
+result <- scTHI.runTsne(result)
 }

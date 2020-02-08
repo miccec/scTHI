@@ -5,17 +5,28 @@
 \title{scTHI.plotCluster}
 \usage{
 scTHI.plotCluster(scTHIresult, cexPoint = 0.8, legendPos = c("topleft",
-  "topright", "bottomright", "bottomleft"))
+"topright", "bottomright", "bottomleft"))
 }
 \arguments{
 \item{scTHIresult}{scTHI object.}
 
 \item{cexPoint}{Set the point size.}
 
-\item{legendPos}{Character string to custom the legend position.
-
-scTHI.plotCluster}
+\item{legendPos}{Character string to custom the legend position.}
+}
+\value{
+None
 }
 \description{
 Graphs the output of scTHI.runTsne, labeling cells by clusters.
+}
+\examples{
+data(scExample)
+result <-  scTHI.score(scExample, cellCusterA = colnames(scExample)[1:30],
+                    cellCusterB = colnames(scExample)[31:100],
+                    cellCusterAName = "ClusterA",
+                    cellCusterBName = "ClusterB", filterCutoff = 0,
+                    pvalueCutoff = 1, nPermu = 100, ncore = 8)
+result <- scTHI.runTsne(result)
+scTHI.plotCluster(result)
 }

@@ -5,21 +5,36 @@
 \title{scTHI.plotResult}
 \usage{
 scTHI.plotResult(scTHIresult, cexNames = 0.8, plotType = c("score",
-  "pair"), nRes = NULL)
+                    "pair"), nRes = NULL)
 }
 \arguments{
 \item{scTHIresult}{scTHI object.}
 
 \item{cexNames}{Size of names in barplot.}
 
-\item{plotType}{Type of plot to be generated. Default is "score", can be also "pair". The "score" option will generate a barplot for each resulted interaction pair, 
-representing the calculated interaction score and the related p-Value.The "pair" option will generate two barplot for each resulted interaction pair, 
-representing the percentage of cells of each cluster expressing partnerA and partnerB gene, respectively.}
+\item{plotType}{Type of plot to be generated. Default is "score", can be
+also "pair". The "score" option will generate a barplot for each
+resulted interaction pair, representing the calculated interaction score
+and the related p-Value.The "pair" option will generate two barplot for
+each resulted interaction pair, representing the percentage of cells of
+each cluster expressing partnerA and partnerB gene, respectively.}
 
-\item{legendPos}{Character string to custom the legend position.
-
-scTHI.plotResult}
+\item{nRes}{Number of pairs to plot (all if NULL).}
+}
+\value{
+None
 }
 \description{
 Creates barplots of scTHI.score results.
+}
+\examples{
+data(scExample)
+result <-  scTHI.score(scExample, cellCusterA = colnames(scExample)[1:30],
+                cellCusterB = colnames(scExample)[31:100],
+                cellCusterAName = "ClusterA",
+                cellCusterBName = "ClusterB", filterCutoff = 0,
+                pvalueCutoff = 1, nPermu = 100, ncore = 8)
+
+scTHI.plotResult(result, plotType = "score")
+scTHI.plotResult(result, plotType = "pair")
 }

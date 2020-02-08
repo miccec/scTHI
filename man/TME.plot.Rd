@@ -11,10 +11,23 @@ TME.plot(tsneData, Class, cexPoint = 0.8)
 
 \item{Class}{Object returned by TME.classification function.}
 
-\item{cexPoint}{Set the point size.
-
-TME.plot}
+\item{cexPoint}{Set the point size.}
+}
+\value{
+None
 }
 \description{
-Generates a plot on the t-SNE coordinates, labeling cells by TME classification.
+Generates a plot on the t-SNE coordinates, labeling cells by TME
+classification.
+}
+\examples{
+data(scExample)
+result <-  scTHI.score(scExample, cellCusterA = colnames(scExample)[1:30],
+                    cellCusterB = colnames(scExample)[31:100],
+                    cellCusterAName = "ClusterA",
+                    cellCusterBName = "ClusterB", filterCutoff = 0,
+                    pvalueCutoff = 1, nPermu = 100, ncore = 8)
+result <- scTHI.runTsne(result)
+Class <- TME.classification(scExample)
+TME.plot(tsneData = result$tsneData, Class)
 }

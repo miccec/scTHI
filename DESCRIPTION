@@ -1,17 +1,21 @@
 Package: scTHI
-Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Title: single cell Tumor Host Interaction packages
+Version:  0.99.0
+Authors@R: c(person("Francesca Pia", "Caruso", email = "francescapia.caruso@gmail.com", role = c("aut")),
+	person("Michele", "Ceccarelli", email = "m.ceccarelli@gmail.com", role = c("aut", "cre")))
+Author: Michele Ceccarelli [aut, cre],
+  Francesca Pia Caruso [aut]
+Maintainer: Michele Ceccarelli <m.ceccarelli@gmail.com>
+Description: scTHI is an R package to identify active pairs of ligand-receptors from single cells in order to study,among others, tumor-host interactions. scTHI contains a set of signatures to classify cells from the tumor microenvironment using functions from the yaGST package.
 Depends: R (>= 3.0)
-License: What license is it under?
+License: GPL-2
 Encoding: UTF-8
 RoxygenNote: 6.1.1.9000
 LazyData: true
-Imports: doMC,
-        foreach,
-        parallel,
-        iterators,
-    Rtsne
+Imports: yaGST,
+	doMC,
+    	Rtsne,
+	foreach
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
+biocViews: c("SingleCell","ImmunoOncology")
