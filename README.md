@@ -14,4 +14,7 @@ library(scTHI)
 
 Visit the [wiki page](https://github.com/miccec/scTHI/wiki) for guided examples of use.
 
+### References
+
+Francesca Pia Caruso, Luciano Garofano, Fulvio D’Angelo, Kai Yu, Fuchou Tang, Jinzhou Yuan, Jing Zhang, Luigi Cerulo, Davide Bedognetti, Peter A. Sims, Mario Suvà, Xiao-Dong Su, Anna Lasorella, Antonio Iavarone, Michele Ceccarelli "A MAP of tumor-host interactions in glioma at single cell resolution", [https://doi.org/10.1101/827758](https://doi.org/10.1101/827758)
 
