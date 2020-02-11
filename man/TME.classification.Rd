@@ -5,43 +5,48 @@
 \title{TME.classification}
 \usage{
 TME.classification(expMat, minLenGeneSet = 10,
-alternative = "two.sided", pvalFilter = FALSE, fdrFilter = TRUE,
-pvalCutoff = 0.01, nesCutoff = 0.58, nNES = 1)
+  alternative = "two.sided", pvalFilter = FALSE, fdrFilter = TRUE,
+  pvalCutoff = 0.01, nesCutoff = 0.58, nNES = 1)
 }
 \arguments{
-\item{expMat}{Gene expression matrix where rows are genes presented with
-Hugo Symbols and columns are cells. Gene expression values should be
-normalized counts.}
+\item{expMat}{Gene expression matrix where rows are genes
+presented with
+Hugo Symbols and columns are cells. Gene expression values 
+should be normalized counts.}
 
-\item{minLenGeneSet}{Minimum gene set length to pass to mwwGST function.}
+\item{minLenGeneSet}{Minimum gene set length}
 
 \item{alternative}{a character string specifying the alternative
 hypothesis of wilcoxon test, must be one of "two.sided" (default),
 "greater" or "less".}
 
-\item{pvalFilter}{Logical, if TRUE results will be filtered for p-Value.
-Defoult is FALSE.}
+\item{pvalFilter}{Logical, if TRUE results will be filtered 
+for p-Value.
+  Defoult is FALSE.}
 
 \item{fdrFilter}{Logical, if TRUE results will be filtered for FDR.}
 
 \item{pvalCutoff}{Numeric p-Value (or FDR) threshold. Gene set with
-p-Value (or FDR) greater than pvalCutoff will be discarded (default
-is 0.01).}
+p-Value (or FDR) greater than pvalCutoff will be discarded 
+(default is 0.01).}
 
 \item{nesCutoff}{Numeric threshold. Gene set with NES greater than
 nesCutoff will be discarded (default is 0.58)}
 
-\item{nNES}{Default is 0.58, so each cell is classified with a specific
-phenotype based on the first significant enriched gene set.}
+\item{nNES}{Default is 0.58, so each cell is classified with
+a specific
+ phenotype based on the first significant enriched gene set.}
 }
 \value{
 A list with two items: Class (character) and ClassLegend
-(character)
+  (character)
 }
 \description{
 The function allows the user to classify non-tumor cells in tumor
-microenvironment. It implements the Mann-Whitney-Wilcoxon Gene Set Test
-(MWW-GST) algorithm and tests for each cell the enrichment of a collection
+microenvironment. It implements the Mann-Whitney-Wilcoxon Gene
+Set Test
+(MWW-GST) algorithm and tests for each cell the enrichment of
+a collection
 of signatures of different cell types.
 }
 \examples{

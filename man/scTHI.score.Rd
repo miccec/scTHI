@@ -5,36 +5,38 @@
 \title{scTHI.score}
 \usage{
 scTHI.score(expMat, cellCusterA, cellCusterB, cellCusterAName,
-cellCusterBName, topRank = 10, autocrineEffect = TRUE,
-fileNameBase = "scTHI", filterCutoff = 0.5, PValue = TRUE,
-pvalueCutoff = 0.05, nPermu = 1000, ncore = 8)
+  cellCusterBName, topRank = 10, autocrineEffect = TRUE,
+  fileNameBase = "scTHI", filterCutoff = 0.5, PValue = TRUE,
+  pvalueCutoff = 0.05, nPermu = 1000, ncore = 8)
 }
 \arguments{
 \item{expMat}{ScRNA-seq gene expression matrix where rows are genes
 presented with Hugo Symbols and columns are cells. Gene expression
 values should be counts or normalized counts.}
 
-\item{cellCusterA}{Vector of columns of expMat that belong to the first
-cluster.}
+\item{cellCusterA}{Vector of columns of expMat that belong to the 
+first cluster.}
 
-\item{cellCusterB}{Vector of columns of expMat that belong to the second
-cluster.}
+\item{cellCusterB}{Vector of columns of expMat that belong to the 
+second cluster.}
 
 \item{cellCusterAName}{A character string labeling the clusterA.}
 
 \item{cellCusterBName}{A character string labeling the clusterB.}
 
-\item{topRank}{Filter threshold. Set to 10 (default) means that each gene
-of the interaction pair will be considered as expressed in a cell if
-it's in the top rank 10 percent.}
+\item{topRank}{Filter threshold. Set to 10 (default) means that 
+each gene of the interaction pair will be considered as expressed 
+in a cell if it's in the top rank 10 percent.}
 
 \item{autocrineEffect}{if TRUE remove the paracrine filter}
 
 \item{fileNameBase}{Project name.}
 
 \item{filterCutoff}{Score threshold (default is 0.50). For each
-interaction pair, if the score calculated (for the partnerA or partnerB)
-will be less than filterCutoff the interaction pair will be discarded.}
+interaction pair, if the score calculated (for the partnerA
+or partnerB)
+will be less than filterCutoff the interaction pair will be 
+discarded.}
 
 \item{PValue}{Logical, set to TRUE (default) compute statistical
 iterations. If p.value < 0.05, the value will be returned.}
@@ -47,23 +49,25 @@ iterations. If p.value < 0.05, the value will be returned.}
 }
 \value{
 A list of results, with four items: result (data.frame),
-expMat (matrix), clusterA (character),  clusterA (character)
+  expMat (matrix), clusterA (character),  clusterA (character)
 }
 \description{
 This function allows the user to compute a score for a set of
 ligand-receptor pairs, from a single cell gene expression matrix,
 and detect specific Tumor-Host interactions. You must specify at
-least two clusters of cells (for example tumor cells and immune cells).
+least two clusters of cells (for example tumor cells and immune 
+cells).
 }
 \examples{
 
 ####################### example of scTHI.score
 data(scExample)
-result <-  scTHI.score(scExample, cellCusterA = colnames(scExample)[1:30],
-                    cellCusterB = colnames(scExample)[31:100],
-                    cellCusterAName = "ClusterA",
-                    cellCusterBName = "ClusterB", filterCutoff = 0,
-                    pvalueCutoff = 1, nPermu = 100, ncore = 8)
+result <-  scTHI.score(scExample,
+      cellCusterA = colnames(scExample)[1:30],
+      cellCusterB = colnames(scExample)[31:100],
+      cellCusterAName = "ClusterA",
+      cellCusterBName = "ClusterB", filterCutoff = 0,
+     pvalueCutoff = 1, nPermu = 100, ncore = 8)
 
 }
 \keyword{interaction}

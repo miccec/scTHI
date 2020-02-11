@@ -22,11 +22,12 @@ classification.
 }
 \examples{
 data(scExample)
-result <-  scTHI.score(scExample, cellCusterA = colnames(scExample)[1:30],
-                    cellCusterB = colnames(scExample)[31:100],
-                    cellCusterAName = "ClusterA",
-                    cellCusterBName = "ClusterB", filterCutoff = 0,
-                    pvalueCutoff = 1, nPermu = 100, ncore = 8)
+result <-  scTHI.score(scExample,
+           cellCusterA = colnames(scExample)[1:30],
+           cellCusterB = colnames(scExample)[31:100],
+           cellCusterAName = "ClusterA",
+           cellCusterBName = "ClusterB", filterCutoff = 0,
+           pvalueCutoff = 1, nPermu = 100, ncore = 8)
 result <- scTHI.runTsne(result)
 Class <- TME.classification(scExample)
 TME.plot(tsneData = result$tsneData, Class)
