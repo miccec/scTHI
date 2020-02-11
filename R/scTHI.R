@@ -815,7 +815,6 @@ scTHI.runTsne <- function(scTHIresult) {
 
     requireNamespace("Rtsne")
     expMatT <- t(expMat)
-    set.seed(1) ### for reproducibility
     tsne_out <- Rtsne::Rtsne(expMatT)
     tsneData <- data.frame(
         x = tsne_out$Y[, 1],
