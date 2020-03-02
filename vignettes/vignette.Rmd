@@ -14,11 +14,9 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r style, echo = FALSE, results = 'asis', eval=TRUE}
-BiocStyle::markdown()
-```
 
-#Introduction
+
+# Introduction
 The detection of tumor-host interaction is a major challange in cancer 
 understanding. More recent advances in single cell next generation 
 sequencing have provided new insights in unveiling tumor microenvironment 
@@ -30,23 +28,20 @@ among malignant and non tumor cells
 # Installation
 
 ```{r echo = FALSE, message=FALSE,warning=FALSE, eval=FALSE, echo=TRUE}
-library(devtools)
-install_github("miccec/yaGST")
-install_github("miccec/scTHI")
-install_github("miccec/scTHI.data")
-library(yaGST)
-library(scTHI)
+if(!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("scTHI")
 ```
 
 # Examples 
-##Analysis of H3K27M glioma from Fibin et al. Science 2018
+## Analysis of H3K27M glioma from Fibin et al. Science 2018
 
 ### Input Data
 The scTHI package requires a matrix of count data (or normalized counts) 
 from single cell RNA-seq experiments, where rows are genes presented with 
 Hugo Symbols and columns are cells. For a practical demonstration, we 
-will use the scRNA-seq data available on the Broad Institute Single-Cell 
-Portal (https://portals.broadinstitute.org/single_cell/study/single-cell-
+will use the scRNA-seq data available on the [Broad Institute Single-Cell 
+Portal](https://portals.broadinstitute.org/single_cell/study/single-cell-
 analysis-in-pediatric-midline-gliomas-withhistone-h3k27m-mutation) [1]. 
 The dataset provides 3,321 scRNA-seq profiles from six primary Glioma 
 (H3K27M-glioma), and includes both malignant cells and several tumor 
@@ -62,6 +57,7 @@ loaded as follows:
 ```{r,warning=FALSE}
 library(scTHI)
 library(scTHI.data)
+set.seed(1234)
 data("H3K27")
 data("H3K27.meta")
 ```
@@ -100,9 +96,9 @@ A p-value for each pair is computed, based on a null model from random
 permutations of data, and  and only significant 
 interaction pairs are reported.
 
-```{r message=FALSE,warning=FALSE}
+```{r, warning=FALSE}
 H3K27.result <-
-scTHI.score(
+scTHI_score(
 expMat = H3K27,
 cellCusterA = Malignant,
 cellCusterB = Immune,
@@ -134,14 +130,14 @@ pair are shown bar plots displaying the percentage of cells in
 each cluster expressing partner A and partner B, respectively.
 
 ```{r}
-scTHI.plotResult(scTHIresult = H3K27.result,
+scTHI_plotResult(scTHIresult = H3K27.result,
                 cexNames = 0.7,
                 plotType = "score")
 ```
 
 
 ```{r}
-scTHI.plotResult(scTHIresult = H3K27.result,
+scTHI_plotResult(scTHIresult = H3K27.result,
                 cexNames = 0.7,
                 plotType = "pair")
 ```
@@ -149,9 +145,9 @@ scTHI.plotResult(scTHIresult = H3K27.result,
 Another useful way to explore results is the visualization of the 
 entire data set through the t-SNE plot. scTHI allows the user to 
 compute the non-linear dimensionality reduction of data using the 
-scTHI.runTsne function based on the Rtsne R package [3].
+scTHI.runTsne function based on the Rtsne R package [2].
 ```{r}
-H3K27.result <- scTHI.runTsne(scTHIresult = H3K27.result)
+H3K27.result <- scTHI_runTsne(scTHIresult = H3K27.result)
 ```
 
 Users can decide to display on the tsne the two input clusters, 
@@ -161,7 +157,7 @@ dataset. The scTHI.plotCluster function differently labels cells
 on t-SNE if they belong to ClusterA or ClusterB.
 
 ```{r}
-scTHI.plotCluster(scTHIresult = H3K27.result,
+scTHI_plotCluster(scTHIresult = H3K27.result,
                 cexPoint = 0.8,
                 legendPos = "bottomleft")
 ```
@@ -175,7 +171,7 @@ by the cancer cells and the ITGAX-ITGB2 complex, instead expressed
 by the immune cells.
 
 ```{r}
-scTHI.plotPairs(
+scTHI_plotPairs(
 scTHIresult = H3K27.result,
 cexPoint = 0.8,
 interactionToplot = "THY1_ITGAX:ITGB2"
@@ -198,7 +194,7 @@ types identified by clustering approaches. This strategy is not
 always the most accurate, our approach uses a different method 
 for the classification of TME based on gene signature enrichment 
 analysis. The `TME.classification` implements the 
-Mann-Whitney-Wilcoxon Gene Set Test (MWW-GST) algorithm [4] 
+Mann-Whitney-Wilcoxon Gene Set Test (MWW-GST) algorithm [3] 
 and tests for each cell the enrichment of a collection of 
 signatures of different cell types, with greater interest for 
 the Immune System and the Central Nervous System cells. Thus, 
@@ -218,7 +214,7 @@ long time if the number of cells to test is large.
 
 
 ```{r, message=FALSE}
-Class <- TME.classification(expMat = H3K27.tme, minLenGeneSet = 10)
+Class <- TME_classification(expMat = H3K27.tme, minLenGeneSet = 10)
 ```
 The H3K27M dataset annotation table suggests that non-tumor cells 
 from BCH836 patient are mainly composed by Oligodendrocyte and Immune 
@@ -234,10 +230,14 @@ Finally, using the previously calculated t-SNE or a set of
 user-defined coordinates, you can view the new classification 
 of the TME.
 ```{r}
-TME.plot(tsneData = H3K27.result$tsneData, Class, cexPoint = 0.8)
+TME_plot(tsneData = H3K27.result$tsneData, Class, cexPoint = 0.8)
 ```
 
 
+# Session Info
+```{r}
+sessionInfo()
+```
 
 # References
 1. Filbin, M. G., Tirosh, I., Hovestadt, V., Shaw, M. L., Escalante, 
@@ -245,14 +245,10 @@ L. E., Mathewson, N. D., ... & Haberler, C. (2018). Developmental
 and oncogenic programs in H3K27M gliomas dissected by single-cell 
 RNA-seq. Science, 360(6386), 331-335.
 
-2. Vento-Tormo, R., Efremova, M., Botting, R. A., Turco, M. Y., 
-Vento-Tormo, M., Meyer, K. B., ... & Gardner, L. (2018). Single-cell 
-reconstruction of the early maternal???fetal interface in humans. 
-Nature, 563(7731), 347.
 
-3. Maaten, L. V. D., & Hinton, G. (2008). Visualizing data 
+2. Maaten, L. V. D., & Hinton, G. (2008). Visualizing data 
 using t-SNE. Journal of machine learning research, 9(Nov), 2579-2605.
 
-4. Frattini, V., Pagnotta, S. M., Fan, J. J., Russo, M. V., Lee, 
+3. Frattini, V., Pagnotta, S. M., Fan, J. J., Russo, M. V., Lee, 
 S. B., Garofano, L., ... & Frederick, V. (2018). A metabolic 
 function of FGFR3-TACC3 gene fusions in cancer. Nature, 553(7687), 222.
