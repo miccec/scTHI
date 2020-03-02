@@ -1,0 +1,78 @@
+---
+title: "External data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Interaction table
+
+The object `interaction_table` contains a list of 2,548 pairs of ligand and receptors. Data has been collected curating publicly available resources from:
+
+ * Ramilowski JA, Goldberg T, Harshbarger J, Kloppmann E, Lizio M, Satagopam VP, et al. A draft
+network of ligand-receptor-mediated multicellular signalling in human. Nat Commun. 2015;6:7866.
+doi:10.1038/ncomms8866.
+
+ * Vento-Tormo R, Efremova M, Botting RA, Turco MY, Vento-Tormo M, Meyer KB, et al. Single-cell
+reconstruction of the early maternal-fetal interface in humans. Nature. 2018;563:347–53.
+doi:10.1038/s41586-018-0698-6.
+
+The curated list is composed of known and novel literature-supported interactions and includes both heteromeric and monomeric ligands/receptors mainly related to chemokine, cytokine, growth factors, integrin, TGF and TNF family members, semaphorins, ephrins, Wnt and Notch signalings.. 
+
+
+
+# Signatures
+
+The object `signatures` contains a list of 295 cell-type specific signatures, including the Immune and Central Nervous Systems. Data has been collected integrating a cureted collection of marker genes and a set of signatures available from public databases and published studies, as:
+
+ * a compendium of 64 human cell types signatures including lymphoid, myeloid, stromal, tissue-specific and stem cells, collected from FANTOM5, ENCODE, Blueprint and Gene Expression Omnibus (GEO) data portals; 
+ 
+ * a set of markers for 30 immune cell types, including myeloid and lymphoid subpopulations identified from Peripheral Blood Mononuclear Cells (PBMCs) [1]; 
+ 
+ * a set of Central Nervous System cell signatures including astrocytes, neuron, oligodendrocytes, microglia, and endothelial cells [2];
+ 
+ * a set of 53 signatures corresponding to 26 different cell types [3-6]
+ 
+ * two gene expression programs related to microglia and bone marrow-derived macrophages in gliomas [7]. 
+
+
+The object `signaturesColors` is a data.frame including a list of colors for `signatures`.
+
+
+##References
+
+[1] Butler A, Hoffman P, Smibert P, Papalexi E, Satija R. Integrating single-cell transcriptomic data
+across different conditions, technologies, and species. Nat Biotechnol. 2018;36:411–20.
+doi:10.1038/nbt.4096.
+
+
+[2] Zhang Y, Chen K, Sloan SA, Bennett ML, Scholze AR, O’Keeffe S, et al. An RNA-sequencing
+transcriptome and splicing database of glia, neurons, and vascular cells of the cerebral cortex. J
+Neurosci. 2014;34:11929–47. doi:10.1523/JNEUROSCI.1860-14.2014.
+
+
+[3] Bindea G, Mlecnik B, Tosolini M, Kirilovsky A, Waldner M, Obenauf AC, et al. Spatiotemporal
+dynamics of intratumoral immune cells reveal the immune landscape in human cancer. Immunity.
+2013;39:782–95. doi:10.1016/j.immuni.2013.10.003.
+
+
+[4] Charoentong P, Finotello F, Angelova M, Mayer C, Efremova M, Rieder D, et al. Pan-cancer
+Immunogenomic Analyses Reveal Genotype-Immunophenotype Relationships and Predictors of
+Response to Checkpoint Blockade. Cell Rep. 2017;18:248–62. doi:10.1016/j.celrep.2016.12.019.
+
+
+[5] Rooney MS, Shukla SA, Wu CJ, Getz G, Hacohen N. Molecular and genetic properties of tumors
+associated with local immune cytolytic activity. Cell. 2015;160:48–61. doi:10.1016/j.cell.2014.12.033.
+
+
+[6] Tirosh I, Izar B, Prakadan SM, Wadsworth MH, Treacy D, Trombetta JJ, et al. Dissecting the
+multicellular ecosystem of metastatic melanoma by single-cell RNA-seq. Science. 2016;352:189–96.
+doi:10.1126/science.aad0501.
+
+
+[7] Venteicher AS, Tirosh I, Hebert C, Yizhak K, Neftel C, Filbin MG, et al. Decoupling genetics,
+lineages, and microenvironment in IDH-mutant gliomas by single-cell RNA-seq. Science. 2017;355.
+doi:10.1126/science.aai8478.
+
