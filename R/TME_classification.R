@@ -27,6 +27,7 @@
 #'  a specific
 #'   phenotype based on the first significant enriched gene set.
 #' @examples
+#' library(scTHI.data)
 #' data(scExample)
 #' Class <- TME_classification(scExample)
 #' @return A list with two items: Class (character) and ClassLegend

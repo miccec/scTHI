@@ -18,6 +18,7 @@ Runs t-SNE dimensionality reduction on selected features based on Rtsne
 package.
 }
 \examples{
+library(scTHI.data)
 data(scExample)
 result <-  scTHI_score(scExample,
                        cellCusterA = colnames(scExample)[1:30],

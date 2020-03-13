@@ -21,6 +21,7 @@ Generates a plot on the t-SNE coordinates, labeling cells by TME
 classification.
 }
 \examples{
+library(scTHI.data)
 data(scExample)
 result <-  scTHI_score(scExample,
            cellCusterA = colnames(scExample)[1:30],

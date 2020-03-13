@@ -5,6 +5,7 @@
 #' @param cexPoint Set the point size.
 #' @param legendPos Character string to custom the legend position.
 #' @examples
+#' library(scTHI.data)
 #' data(scExample)
 #' result <-  scTHI_score(scExample,
 #'                        cellCusterA = colnames(scExample)[1:30],

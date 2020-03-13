@@ -50,6 +50,7 @@ a collection
 of signatures of different cell types.
 }
 \examples{
+library(scTHI.data)
 data(scExample)
 Class <- TME_classification(scExample)
 }

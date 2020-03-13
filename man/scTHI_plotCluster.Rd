@@ -21,6 +21,7 @@ None
 Graphs the output of scTHI_runTsne, labeling cells by clusters.
 }
 \examples{
+library(scTHI.data)
 data(scExample)
 result <-  scTHI_score(scExample,
                        cellCusterA = colnames(scExample)[1:30],

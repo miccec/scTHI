@@ -61,6 +61,7 @@ cells).
 \examples{
 
 ####################### example of scTHI_score
+library(scTHI.data)
 data(scExample)
 result <-  scTHI_score(scExample,
       cellCusterA = colnames(scExample)[1:30],
