@@ -1,6 +1,6 @@
 Package: scTHI
 Title:  Indentification of  significantly activated ligand-receptor interactions across clusters of cells from single-cell RNA sequencing data
-Version:  0.99.8
+Version:  0.99.9
 Authors@R: c(person("Francesca Pia", "Caruso", email = "francescapia.caruso@gmail.com", role = c("aut")),
 	person("Michele", "Ceccarelli", email = "m.ceccarelli@gmail.com", role = c("aut", "cre")))
 Description: scTHI is an R package to identify active pairs of ligand-receptors from single cells in order to study,among others, tumor-host interactions. scTHI contains a set of signatures to classify cells from the tumor microenvironment.
@@ -9,8 +9,8 @@ License: GPL-2
 Encoding: UTF-8
 RoxygenNote: 6.1.1.9000
 LazyData: false
-Imports: BiocParallel, Rtsne, grDevices, graphics, stats, BiocStyle
-Suggests: scTHI.data, knitr, rmarkdown
+Imports: BiocParallel, Rtsne, grDevices, graphics, stats
+Suggests: scTHI.data, knitr, rmarkdown, BiocStyle
 VignetteBuilder: knitr
 biocViews: Software,SingleCell, Sequencing
 BugReports: https://github.com/miccec/scTHI/issues
